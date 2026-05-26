@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS Aging Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:        #f5f6fa;
+    --white:     #ffffff;
+    --border:    #dde1ea;
+    --border2:   #eaecf2;
+    --text:      #1a2033;
+    --text-mid:  #4a5568;
+    --text-soft: #8a95a8;
+    --accent:    #2563eb;
+    --accent-lt: #eff4ff;
+    --accent-bd: #bfcffe;
+    --red:       #dc2626;
+    --red-lt:    #fff5f5;
+    --red-bd:    #fecaca;
+    --green:     #16a34a;
+    --green-lt:  #f0fdf4;
+    --purple:    #7c3aed;
+    --teal:      #0d9488;
+    --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    --mono: 'DM Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: var(--shadow);
+  }
+  .logo {
+    font-size: 15px; font-weight: 600; color: var(--accent);
+    letter-spacing: -.01em; display: flex; align-items: center; gap: 8px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px; background: var(--accent); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px;
+  }
+  .sep { width: 1px; height: 20px; background: var(--border); }
+  .topbar-tag {
+    font-size: 11px; font-weight: 500; background: var(--accent-lt);
+    color: var(--accent); border: 1px solid var(--accent-bd); border-radius: 4px; padding: 2px 8px;
+  }
+  #report-meta {
+    margin-left: auto; display: flex; gap: 16px; align-items: center;
+    font-size: 12px; color: var(--text-soft);
+  }
+  #report-meta strong { color: var(--text-mid); font-weight: 500; }
+  .meta-ok { color: var(--green); font-weight: 500; }
+
+  /* user pill in topbar */
+  .user-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px 4px 6px;
+    font-size: 12px; color: var(--text-mid);
+  }
+  .user-pill img { width: 22px; height: 22px; border-radius: 50%; }
+  .user-pill-name { font-weight: 500; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .signout-btn {
+    background: none; border: none; cursor: pointer; color: var(--text-soft);
+    font-size: 11px; font-family: var(--sans); padding: 0; margin-left: 4px;
+    transition: color .15s;
+  }
+  .signout-btn:hover { color: var(--red); }
+
+  /* ── LOGIN SCREEN ── */
+  #login-screen {
+    max-width: 400px; margin: 80px auto; padding: 0 20px; text-align: center;
+  }
+  .login-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; padding: 40px 32px; box-shadow: var(--shadow-md);
+  }
+  .login-logo {
+    width: 52px; height: 52px; background: var(--accent); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin: 0 auto 18px;
+  }
+  .login-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 28px; line-height: 1.5; }
+  #g-signin-btn { display: flex; justify-content: center; }
+  .login-note {
+    margin-top: 20px; font-size: 11px; color: var(--text-soft);
+    background: var(--bg); border-radius: 6px; padding: 8px 12px;
+  }
+
+  /* ── PAGE SHELL ── */
+  #upload-screen { max-width: 640px; margin: 0 auto; padding: 40px 20px; display: none; }
+  #app { padding: 20px 24px; display: none; }
+  #app.on { display: block; }
+
+  /* ── UPLOAD PAGE ── */
+  .page-title { text-align: center; margin-bottom: 28px; }
+  .page-title h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .page-title p { color: var(--text-mid); font-size: 14px; line-height: 1.6; }
+
+  .info-grid { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .info-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; flex: 1; min-width: 150px; box-shadow: var(--shadow);
+  }
+  .info-card-ico { font-size: 18px; margin-bottom: 6px; }
+  .info-card-t { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .info-card-b { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+
+  /* ── UPLOAD PANEL ── */
+  .upload-panel {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md);
+  }
+  .upload-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .utab {
+    flex: 1; padding: 13px; text-align: center; font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--text-soft); border-bottom: 2px solid transparent;
+    transition: all .15s; background: none;
+    border-top: none; border-left: none; border-right: none; font-family: var(--sans);
+  }
+  .utab:hover { color: var(--accent); }
+  .utab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-lt); }
+  .utab:disabled { opacity: .4; cursor: not-allowed; }
+
+  .tab-pane { display: none; padding: 24px; }
+  .tab-pane.active { display: block; }
+
+  /* DROP ZONE */
+  .drop-zone {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 44px 24px;
+    text-align: center; cursor: pointer; transition: all .2s;
+    display: block; background: var(--bg);
+  }
+  .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); background: var(--accent-lt); }
+  .drop-zone input { display: none; }
+  .drop-ico { font-size: 32px; margin-bottom: 12px; }
+  .drop-t { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+  .drop-s { font-size: 13px; color: var(--text-soft); }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%; padding: 11px; background: var(--accent); color: #fff;
+    border: none; border-radius: 8px; font-family: var(--sans); font-size: 14px;
+    font-weight: 500; cursor: pointer; transition: background .15s; margin-top: 0;
+  }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-primary:disabled { background: #93aff0; cursor: not-allowed; }
+
+  /* STATUS */
+  .status-box {
+    margin-top: 14px; padding: 10px 14px; border-radius: 7px;
+    font-size: 13px; text-align: center; display: none;
+  }
+  .status-box.ok  { background: var(--green-lt); color: var(--green); border: 1px solid #bbf7d0; display: block; }
+  .status-box.err { background: var(--red-lt); color: var(--red); border: 1px solid var(--red-bd); display: block; }
+  .status-box.info { background: var(--accent-lt); color: var(--accent); border: 1px solid var(--accent-bd); display: block; }
+
+  /* LOADER */
+  .loader { display: none; text-align: center; padding: 32px; }
+  .loader.on { display: block; }
+  .spinner {
+    width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px;
+  }
+  .loader-t { font-size: 13px; color: var(--text-soft); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── TOOLBAR ── */
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px; background: var(--white);
+    border: 1px solid var(--border); border-radius: 8px; padding: 0 12px;
+    flex: 1; min-width: 200px; max-width: 380px; box-shadow: var(--shadow);
+  }
+  .search-box input {
+    background: none; border: none; outline: none; color: var(--text);
+    font-family: var(--sans); font-size: 13px; padding: 9px 0; width: 100%;
+  }
+  .search-box input::placeholder { color: var(--text-soft); }
+  .si { color: var(--text-soft); font-size: 15px; }
+
+  .tbtn {
+    background: var(--white); border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text-mid); font-family: var(--sans); font-size: 12px; font-weight: 500;
+    padding: 8px 14px; cursor: pointer; transition: all .15s; white-space: nowrap;
+    box-shadow: var(--shadow);
+  }
+  .tbtn:hover { background: var(--bg); border-color: #c5cbda; }
+  .tbtn.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: none; }
+  .tbtn.red-btn { border-color: var(--red-bd); color: var(--red); }
+  .tbtn.red-btn.on { background: var(--red); border-color: var(--red); color: #fff; }
+  .tbtn-ghost {
+    background: none; border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text-soft); font-family: var(--sans); font-size: 12px;
+    padding: 8px 14px; cursor: pointer; transition: all .15s; margin-left: auto;
+  }
+  .tbtn-ghost:hover { color: var(--red); border-color: var(--red-bd); }
+
+  /* FILTER ROW */
+  .filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-lbl { font-size: 11px; font-weight: 500; color: var(--text-soft); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+
+  /* STATS */
+  .stats { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat {
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; flex: 1; min-width: 120px; box-shadow: var(--shadow);
+  }
+  .stat-l { font-size: 10px; font-weight: 500; color: var(--text-soft); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+  .stat-v { font-family: var(--mono); font-size: 17px; font-weight: 500; color: var(--text); }
+  .stat-v.red { color: var(--red); }
+
+  /* ── HIERARCHY ── */
+  .rsm-block { margin-bottom: 24px; }
+  .rsm-bar {
+    background: #f0f3fa; border: 1px solid #d0d7e8; border-radius: 10px 10px 0 0;
+    padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .hier-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    border: 1px solid; font-family: var(--mono); white-space: nowrap;
+  }
+  .b-rsm { background: #f3eeff; border-color: #d8b4fe; color: var(--purple); }
+  .b-dsm { background: #effaf8; border-color: #99e6da; color: var(--teal); }
+  .b-pso { background: var(--accent-lt); border-color: var(--accent-bd); color: var(--accent); }
+  .hier-name { font-weight: 600; font-size: 13px; color: var(--text); }
+  .hier-meta { margin-left: auto; display: flex; gap: 18px; font-size: 12px; color: var(--text-soft); align-items: center; }
+  .hier-meta .rv { color: var(--red); font-weight: 500; }
+  .hier-meta .gv { color: var(--green); font-weight: 500; }
+  .dsm-block { border-left: 3px solid #d0d7e8; margin-left: 10px; }
+  .dsm-bar {
+    background: #f8f9fc; border-bottom: 1px solid var(--border2);
+    padding: 8px 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .pso-section { border-left: 3px solid #e2e6f0; margin-left: 20px; }
+  .pso-header {
+    background: var(--white); border-bottom: 1px solid var(--border2);
+    padding: 8px 14px; display: flex; align-items: center; gap: 10px;
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap {
+    overflow-x: auto; background: var(--white);
+    border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: #f8f9fc; color: var(--text-soft); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em; padding: 8px 12px;
+    text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  th.r, td.r { text-align: right; }
+  tbody tr { border-bottom: 1px solid var(--border2); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f8f9fc; }
+  tbody tr.ov { background: var(--red-lt); }
+  tbody tr.ov td:first-child { border-left: 3px solid var(--red); }
+  tbody tr.ov:hover { background: #fff0f0; }
+  td { padding: 8px 12px; vertical-align: middle; color: var(--text); }
+  td.mono { font-family: var(--mono); font-size: 11px; color: var(--text-mid); }
+  td.cname { font-weight: 500; max-width: 180px; }
+  tfoot tr { background: #f0f3fa !important; border-top: 2px solid var(--border) !important; }
+  tfoot td { font-weight: 600; color: var(--text); padding: 8px 12px; font-size: 11px; }
+
+  /* BADGES */
+  .bdg {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    font-weight: 500; padding: 2px 7px; border-radius: 4px; border: 1px solid; white-space: nowrap;
+  }
+  .b30   { background:#f0fdf4; border-color:#bbf7d0; color:#15803d; }
+  .b45   { background:#fffbeb; border-color:#fde68a; color:#92400e; }
+  .b60   { background:#fff7ed; border-color:#fed7aa; color:#9a3412; }
+  .b90   { background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+  .b120  { background:#faf5ff; border-color:#e9d5ff; color:#6b21a8; }
+  .bover { background:#fef2f2; border-color:#fca5a5; color:#b91c1c; }
+  .bok   { background:#f0fdf4; border-color:#bbf7d0; color:#15803d; }
+  .bovr  { color: var(--red); font-weight: 600; font-size: 11px; }
+
+  /* COLLAPSE */
+  .collapse-btn {
+    background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+    color: var(--text-soft); font-size: 11px; padding: 2px 7px;
+    transition: all .15s; font-family: var(--sans);
+  }
+  .collapse-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px 20px; }
+  .empty-ico { font-size: 32px; margin-bottom: 12px; }
+  .empty-t { font-size: 15px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; }
+  .empty-s { font-size: 13px; color: var(--text-soft); }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #c5cbda; }
+
+  @media(max-width:640px) {
+    .topbar { padding: 0 14px; }
+    #app { padding: 14px; }
+    .hier-meta { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    DMS Aging
+  </div>
+  <div class="sep"></div>
+  <span class="topbar-tag">Type I Only</span>
+  <div id="report-meta"></div>
+  <div id="user-area"></div>
+</div>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">📊</div>
+    <div class="login-title">DMS Aging Report</div>
+    <div class="login-sub">Sign in with your authorized Google account to access the receivables dashboard.</div>
+    <div id="g-signin-btn"></div>
+    <div class="login-note">Access is restricted to authorized company accounts only.</div>
+  </div>
+</div>
+
+<!-- ══ UPLOAD SCREEN ══ -->
+<div id="upload-screen">
+  <div class="page-title">
+    <h1>Aging Report Viewer</h1>
+    <p>View the latest published aging report, or upload a new one if you are authorized.</p>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-ico">🔴</div>
+      <div class="info-card-t">Overdue Highlighted</div>
+      <div class="info-card-b">Invoices past each customer's credit limit are marked red.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-ico">📅</div>
+      <div class="info-card-t">Aging Recalculated</div>
+      <div class="info-card-b">Buckets recalculated from invoice date: 30, 45, 60, 90, 120, 120+ days.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-ico">🔍</div>
+      <div class="info-card-t">Search by PSO / DSM</div>
+      <div class="info-card-b">Find any rep, customer, or invoice instantly.</div>
+    </div>
+  </div>
+
+  <div class="upload-panel">
+    <div class="upload-tabs">
+      <button class="utab active" id="tab-btn-view"   onclick="switchTab('view')">📋 View Latest Report</button>
+      <button class="utab"        id="tab-btn-upload" onclick="switchTab('upload')" disabled>⬆ Upload New Report</button>
+    </div>
+
+    <!-- VIEW TAB -->
+    <div class="tab-pane active" id="tab-view">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">
+        Click below to load the latest published aging report.
+      </p>
+      <button class="btn-primary" onclick="fetchFromSheet()">Load Latest Report</button>
+      <div class="loader" id="fetch-loader">
+        <div class="spinner"></div>
+        <div class="loader-t" id="fetch-loader-t">Loading from Google Sheets…</div>
+      </div>
+      <div class="status-box" id="fetch-status"></div>
+    </div>
+
+    <!-- UPLOAD TAB (only shown to uploader) -->
+    <div class="tab-pane" id="tab-upload">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">
+        Upload the full DMS aging export. Only <strong>Type I</strong> invoices will be processed.
+      </p>
+      <label class="drop-zone" id="drop-zone">
+        <input type="file" id="file-in" accept=".xlsx,.xls,.csv">
+        <div class="drop-ico">📂</div>
+        <div class="drop-t">Drop DMS aging export here</div>
+        <div class="drop-s">.xlsx / .xls / .csv — click or drag to select</div>
+      </label>
+      <div class="loader" id="upload-loader">
+        <div class="spinner"></div>
+        <div class="loader-t" id="upload-loader-t">Processing…</div>
+      </div>
+      <div class="status-box" id="upload-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app">
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="si">⌕</span>
+      <input type="text" id="srch" placeholder="Search PSO / DSM / RSM / Customer / BCode…" autocomplete="off">
+    </div>
+    <button class="tbtn on" id="v-all" onclick="setView('all')">All PSOs</button>
+    <button class="tbtn"    id="v-ov"  onclick="setView('overdue')">Has Overdue</button>
+    <button class="tbtn-ghost"         onclick="resetApp()">← Back</button>
+  </div>
+
+  <div class="filter-row">
+    <span class="filter-lbl">Aging:</span>
+    <button class="tbtn on"      data-band="all"     onclick="setBand(this,'all')">All</button>
+    <button class="tbtn"         data-band="30"      onclick="setBand(this,'30')">≤ 30d</button>
+    <button class="tbtn"         data-band="45"      onclick="setBand(this,'45')">≤ 45d</button>
+    <button class="tbtn"         data-band="60"      onclick="setBand(this,'60')">≤ 60d</button>
+    <button class="tbtn"         data-band="90"      onclick="setBand(this,'90')">≤ 90d</button>
+    <button class="tbtn"         data-band="120"     onclick="setBand(this,'120')">≤ 120d</button>
+    <button class="tbtn"         data-band="over120" onclick="setBand(this,'over120')">120d+</button>
+    <button class="tbtn red-btn" data-band="overdue" onclick="setBand(this,'overdue')">⚠ Overdue</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div id="results"></div>
+</div>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ── CONFIG — Edit these values before deploying ──────────────
+// ═══════════════════════════════════════════════════════════════
+
+const CONFIG = {
+  // Your Google Apps Script Web App URL
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbye-Cr5n2i5YnzTqS81aV_B6mFK6xrRJJ1HEzsbxS_PJq-baKUUNHMCsxKhfVeuToJd/exec',
+
+  // Your Google OAuth Client ID (from console.cloud.google.com)
+  GOOGLE_CLIENT_ID: '492513154124-53qs4rsfvudiu6fuai5d81te6lqfvh7f.apps.googleusercontent.com',
+
+  // The ONE email that can upload new reports
+  UPLOADER_EMAIL: 'mursalinahmed97@gmail.com',
+
+  // All emails that can VIEW the report (include uploader here too)
+  ALLOWED_VIEWERS: [
+    'mursalinahmed97@gmail.com',
+    'viewer1@yourcompany.com',
+    'viewer2@yourcompany.com',
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════
+
+// ── STATE ─────────────────────────────────────────────────────
+let currentUser  = null;   // { email, name, picture }
+let creditMap    = {};     // { customerCode: creditDays } — loaded from Google Sheet
+let allRows      = [];
+let view         = 'all';
+let band         = 'all';
+let query        = '';
+let uploadDate   = null;
+const DEFAULT_CREDIT_DAYS = 30;
+
+// ── GOOGLE IDENTITY INIT ──────────────────────────────────────
+window.addEventListener('load', () => {
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: onGoogleSignIn,
+    auto_select: false,
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('g-signin-btn'),
+    { theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular', width: 280 }
+  );
+  // Show One Tap prompt
+  google.accounts.id.prompt();
+});
+
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+  } catch { return null; }
+}
+
+function onGoogleSignIn(response) {
+  const payload = parseJwt(response.credential);
+  if (!payload) { showLoginError('Invalid sign-in response.'); return; }
+
+  if (!CONFIG.ALLOWED_VIEWERS.includes(payload.email)) {
+    showLoginError(`Access denied for ${payload.email}. Contact your administrator.`);
+    google.accounts.id.disableAutoSelect();
+    return;
+  }
+
+  currentUser = {
+    email:   payload.email,
+    name:    payload.name,
+    picture: payload.picture,
+    token:   response.credential,
+  };
+
+  // Show user pill in topbar
+  document.getElementById('user-area').innerHTML = `
+    <div class="user-pill">
+      <img src="${currentUser.picture}" alt="">
+      <span class="user-pill-name">${currentUser.name}</span>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>`;
+
+  // Hide login, show upload screen
+  document.getElementById('login-screen').style.display  = 'none';
+  document.getElementById('upload-screen').style.display = 'block';
+
+  // Enable upload tab only for the designated uploader
+  if (currentUser.email === CONFIG.UPLOADER_EMAIL) {
+    document.getElementById('tab-btn-upload').disabled = false;
+  }
+}
+
+function showLoginError(msg) {
+  const card = document.querySelector('.login-card');
+  let errEl = document.getElementById('login-err');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'login-err';
+    errEl.style.cssText = 'margin-top:14px;padding:10px 14px;background:#fff5f5;color:#dc2626;border:1px solid #fecaca;border-radius:7px;font-size:13px;';
+    card.appendChild(errEl);
+  }
+  errEl.textContent = msg;
+}
+
+function signOut() {
+  google.accounts.id.disableAutoSelect();
+  currentUser = null;
+  allRows = []; creditMap = {};
+  document.getElementById('user-area').innerHTML = '';
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('report-meta').innerHTML = '';
+  // re-render login button
+  google.accounts.id.renderButton(
+    document.getElementById('g-signin-btn'),
+    { theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular', width: 280 }
+  );
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+const cl  = s => String(s ?? '').trim();
+const fmt = n => (!n && n !== 0) || isNaN(n)
+  ? '—'
+  : Number(n).toLocaleString('en-BD', {minimumFractionDigits:2, maximumFractionDigits:2});
+const sumF = (arr, f) => arr.reduce((t, r) => t + (f(r) || 0), 0);
+
+// ── CODE PADDING ──────────────────────────────────────────────
+// DSM: always pad to 2 digits  (5 → "05", 12 → "12")
+// PSO: always pad to 3 digits  (5 → "005", 12 → "012", 123 → "123")
+function padDSM(code) {
+  const s = cl(code).replace(/\D/g, '');   // keep digits only
+  return s ? s.padStart(2, '0') : cl(code);
+}
+function padPSO(code) {
+  const s = cl(code).replace(/\D/g, '');
+  return s ? s.padStart(3, '0') : cl(code);
+}
+
+// ── DATE HELPERS ──────────────────────────────────────────────
+function parseExcelDate(v) {
+  if (!v && v !== 0) return null;
+  if (v instanceof Date) return isNaN(v) ? null : v;
+  if (typeof v === 'number') {
+    const d = new Date(Math.round((v - 25569) * 86400000));
+    return isNaN(d) ? null : d;
+  }
+  const str = String(v).trim();
+  const m  = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (m)  return new Date(+m[3], +m[2]-1, +m[1]);
+  const m2 = str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+function daysDiff(d) {
+  return (!d || !uploadDate) ? null : Math.floor((uploadDate - d) / 86400000);
+}
+function ageBand(days) {
+  if (days === null) return 'unknown';
+  if (days <= 30)  return '30';
+  if (days <= 45)  return '45';
+  if (days <= 60)  return '60';
+  if (days <= 90)  return '90';
+  if (days <= 120) return '120';
+  return 'over120';
+}
+
+// ── COLUMN MAPPING ────────────────────────────────────────────
+function norm(s) { return cl(s).toLowerCase().replace(/\s+/g,' '); }
+function mapColumns(headers) {
+  const n = headers.map(norm);
+  const find = (...keys) => n.findIndex(h => keys.some(k => h === k || h.includes(k)));
+  return {
+    bcode : find('bcode'),
+    rsm   : find('rsm'),
+    dsm   : find('dsm'),
+    pso   : find('pso'),
+    code  : find('code'),                          // exact "Code" column = customer code
+    cname : find('customer name'),
+    memo  : find('memo no', 'memo', 'invoice no'),
+    type  : find('type'),
+    date  : find('date'),
+    recv  : find('receivable', ' receivable'),     // note: source has leading space
+  };
+}
+
+// ── PARSE XLSX ROWS ───────────────────────────────────────────
+function parseRows(raw, refDate) {
+  // Find header row containing "PSO" or "BCode"
+  let hRow = 0;
+  for (let i = 0; i < Math.min(25, raw.length); i++) {
+    const n = raw[i].map(norm);
+    if (n.includes('pso') || n.includes('bcode')) { hRow = i; break; }
+  }
+
+  const C = mapColumns(raw[hRow]);
+  const rows = [];
+
+  for (let i = hRow + 1; i < raw.length; i++) {
+    const r = raw[i];
+    if (!r || r.every(c => c === '' || c === null || c === undefined)) continue;
+
+    // Type filter — only "I"
+    const typ = C.type >= 0 ? cl(r[C.type]).toUpperCase() : '';
+    if (C.type >= 0 && typ !== 'I') continue;
+
+    const bcode  = C.bcode >= 0 ? cl(r[C.bcode]) : '';
+    const rsm    = C.rsm   >= 0 ? cl(r[C.rsm])   : '';
+    const dsm    = padDSM(C.dsm >= 0 ? r[C.dsm] : '');
+    const pso    = padPSO(C.pso >= 0 ? r[C.pso] : '');
+    const code   = C.code  >= 0 ? cl(r[C.code])  : '';
+    const cname  = C.cname >= 0 ? cl(r[C.cname]) : '';
+    const memo   = C.memo  >= 0 ? cl(r[C.memo])  : '';
+    const recv   = C.recv  >= 0 ? (parseFloat(r[C.recv]) || 0) : 0;
+    const invDate = parseExcelDate(C.date >= 0 ? r[C.date] : null);
+
+    if (!pso && !code && !cname) continue;
+
+    const days       = daysDiff(invDate);
+    const ab         = ageBand(days);
+    // Use live creditMap fetched from Google Sheet; fallback to default
+    const creditDays = creditMap[code] || DEFAULT_CREDIT_DAYS;
+    const isOverdue  = days !== null && days > creditDays;
+
+    rows.push({
+      bcode, rsm, dsm, pso, code, cname, memo, invDate,
+      days, band: ab, recv, creditDays, isOverdue,
+      d30:     days !== null && days <= 30                    ? recv : 0,
+      d31_45:  days !== null && days > 30  && days <= 45     ? recv : 0,
+      d46_60:  days !== null && days > 45  && days <= 60     ? recv : 0,
+      d61_90:  days !== null && days > 60  && days <= 90     ? recv : 0,
+      d91_120: days !== null && days > 90  && days <= 120    ? recv : 0,
+      dAbove:  days !== null && days > 120                   ? recv : 0,
+    });
+  }
+  return rows;
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────
+function switchTab(t) {
+  ['view','upload'].forEach(id => {
+    document.getElementById('tab-btn-'+id).classList.toggle('active', id === t);
+    document.getElementById('tab-'+id).classList.toggle('active', id === t);
+  });
+}
+
+// ── FILE DROP / UPLOAD ────────────────────────────────────────
+const dz = document.getElementById('drop-zone');
+document.getElementById('file-in').addEventListener('change', e => handleFile(e.target.files[0]));
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('drag'));
+dz.addEventListener('drop',      e  => { e.preventDefault(); dz.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
+
+function setUploadStatus(msg, type) {
+  const el = document.getElementById('upload-status');
+  el.textContent = msg;
+  el.className = 'status-box ' + type;
+}
+function setUploadLoader(on, msg) {
+  document.getElementById('upload-loader').classList.toggle('on', on);
+  if (msg) document.getElementById('upload-loader-t').textContent = msg;
+}
+
+function handleFile(file) {
+  if (!file) return;
+  if (!currentUser || currentUser.email !== CONFIG.UPLOADER_EMAIL) {
+    setUploadStatus('You are not authorized to upload reports.', 'err');
+    return;
+  }
+
+  setUploadLoader(true, 'Reading file…');
+  setUploadStatus('', '');
+
+  uploadDate = new Date();
+  uploadDate.setHours(0, 0, 0, 0);
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array', cellDates: false });
+
+      // Pick sheet with the most rows
+      let sheet = wb.SheetNames[0], maxR = 0;
+      wb.SheetNames.forEach(n => {
+        const ref = wb.Sheets[n]['!ref'];
+        if (!ref) return;
+        const r = XLSX.utils.decode_range(ref).e.r;
+        if (r > maxR) { maxR = r; sheet = n; }
+      });
+
+      const raw  = XLSX.utils.sheet_to_json(wb.Sheets[sheet], { header:1, defval:'' });
+      const rows = parseRows(raw, uploadDate);
+
+      if (rows.length === 0) {
+        setUploadLoader(false);
+        setUploadStatus('No Type I invoices found. Please check the file format.', 'err');
+        return;
+      }
+
+      setUploadLoader(true, `Parsed ${rows.length.toLocaleString()} invoices — uploading to Google Sheets…`);
+      pushToSheet(rows, file.name);
+    } catch (err) {
+      setUploadLoader(false);
+      setUploadStatus('Error reading file: ' + err.message, 'err');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function pushToSheet(rows, fileName) {
+  const payload = {
+    action:     'upload',
+    uploaderEmail: currentUser.email,
+    uploadDate: uploadDate.toISOString().split('T')[0],
+    fileName:   fileName,
+    rows: rows.map(r => ({
+      bcode: r.bcode, rsm: r.rsm, dsm: r.dsm, pso: r.pso,
+      code: r.code, cname: r.cname, memo: r.memo,
+      invDate:    r.invDate ? r.invDate.toISOString().split('T')[0] : '',
+      days:       r.days ?? '',
+      band:       r.band,
+      recv:       r.recv,
+      creditDays: r.creditDays,
+      isOverdue:  r.isOverdue,
+      d30:        r.d30,    d31_45:  r.d31_45,
+      d46_60:     r.d46_60, d61_90:  r.d61_90,
+      d91_120:    r.d91_120, dAbove: r.dAbove,
+    })),
+  };
+
+  fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+    .then(r => r.json())
+    .then(res => {
+      setUploadLoader(false);
+      if (res.status === 'ok') {
+        setUploadStatus(`✓ Published successfully — ${rows.length.toLocaleString()} invoices uploaded. Team can now view the latest report.`, 'ok');
+      } else {
+        setUploadStatus('Server error: ' + (res.message || 'Unknown'), 'err');
+      }
+    })
+    .catch(err => {
+      setUploadLoader(false);
+      setUploadStatus('Upload failed: ' + err.message, 'err');
+    });
+}
+
+// ── FETCH FROM SHEET ──────────────────────────────────────────
+function setFetchStatus(msg, type) {
+  const el = document.getElementById('fetch-status');
+  el.textContent = msg;
+  el.className = 'status-box ' + (type || '');
+}
+function setFetchLoader(on, msg) {
+  document.getElementById('fetch-loader').classList.toggle('on', on);
+  if (msg) document.getElementById('fetch-loader-t').textContent = msg;
+}
+
+function fetchFromSheet() {
+  setFetchLoader(true, 'Fetching credit limits…');
+  setFetchStatus('', '');
+
+  // Step 1: fetch credit limits first, then fetch aging data
+  fetch(CONFIG.SCRIPT_URL + '?action=credits')
+    .then(r => r.json())
+    .then(res => {
+      // Build creditMap from Google Sheet CREDIT_LIMITS
+      creditMap = {};
+      if (res.credits && Array.isArray(res.credits)) {
+        res.credits.forEach(c => {
+          const code = cl(String(c.customerCode || ''));
+          const days = parseInt(c.creditDays) || DEFAULT_CREDIT_DAYS;
+          if (code) creditMap[code] = days;
+        });
+      }
+      setFetchLoader(true, 'Loading aging data…');
+      return fetch(CONFIG.SCRIPT_URL + '?action=get');
+    })
+    .then(r => r.json())
+    .then(res => {
+      setFetchLoader(false);
+
+      if (!res.rows || res.rows.length === 0) {
+        setFetchStatus('No data found. Ask your team to upload the aging report first.', 'err');
+        return;
+      }
+
+      uploadDate = new Date(res.uploadDate);
+      uploadDate.setHours(0, 0, 0, 0);
+
+      // Restore types and re-apply live creditMap
+      allRows = res.rows.map(r => {
+        const invDate    = r.invDate ? new Date(r.invDate) : null;
+        const days       = r.days !== '' && r.days !== null ? parseInt(r.days) : null;
+        const creditDays = creditMap[r.code] || DEFAULT_CREDIT_DAYS;
+        const isOverdue  = days !== null && days > creditDays;
+        return {
+          ...r,
+          invDate, days, creditDays, isOverdue,
+          recv:    parseFloat(r.recv)    || 0,
+          d30:     parseFloat(r.d30)     || 0,
+          d31_45:  parseFloat(r.d31_45)  || 0,
+          d46_60:  parseFloat(r.d46_60)  || 0,
+          d61_90:  parseFloat(r.d61_90)  || 0,
+          d91_120: parseFloat(r.d91_120) || 0,
+          dAbove:  parseFloat(r.dAbove)  || 0,
+        };
+      });
+
+      document.getElementById('upload-screen').style.display = 'none';
+      document.getElementById('app').classList.add('on');
+
+      const creditCount = Object.keys(creditMap).length;
+      document.getElementById('report-meta').innerHTML =
+        `<span>File: <strong>${res.fileName || '—'}</strong></span>` +
+        `<span>As of: <strong>${uploadDate.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</strong></span>` +
+        `<span class="meta-ok">✓ ${allRows.length.toLocaleString()} invoices · ${creditCount} credit limits loaded</span>`;
+
+      renderApp();
+    })
+    .catch(err => {
+      setFetchLoader(false);
+      setFetchStatus('Could not load data: ' + err.message + ' — check SCRIPT_URL in config.', 'err');
+    });
+}
+
+// ── FILTER ────────────────────────────────────────────────────
+function getVisible() {
+  let rows = allRows;
+  if (query) {
+    const q = query.toLowerCase();
+    rows = rows.filter(r =>
+      r.pso.toLowerCase().includes(q)   || r.dsm.toLowerCase().includes(q)  ||
+      r.rsm.toLowerCase().includes(q)   || r.bcode.toLowerCase().includes(q)||
+      r.code.toLowerCase().includes(q)  || r.cname.toLowerCase().includes(q)||
+      r.memo.toLowerCase().includes(q)
+    );
+  }
+  if (band === 'overdue') rows = rows.filter(r => r.isOverdue);
+  else if (band !== 'all') rows = rows.filter(r => r.band === band);
+  if (view === 'overdue') {
+    const bad = new Set(allRows.filter(r => r.isOverdue).map(r => r.pso));
+    rows = rows.filter(r => bad.has(r.pso));
+  }
+  return rows;
+}
+
+function buildHierarchy(rows) {
+  const map = {};
+  rows.forEach(r => {
+    if (!map[r.rsm]) map[r.rsm] = { rsm: r.rsm, dsms: {} };
+    const D = map[r.rsm].dsms;
+    if (!D[r.dsm]) D[r.dsm] = { dsm: r.dsm, psos: {} };
+    const P = D[r.dsm].psos;
+    if (!P[r.pso]) P[r.pso] = { pso: r.pso, bcode: r.bcode, rows: [] };
+    P[r.pso].rows.push(r);
+  });
+  return Object.values(map).sort((a, b) => a.rsm.localeCompare(b.rsm));
+}
+
+function agg(rows) {
+  return {
+    total:  sumF(rows, r => r.recv),
+    ov:     sumF(rows.filter(r => r.isOverdue), r => r.recv),
+    ovCnt:  rows.filter(r => r.isOverdue).length,
+  };
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function renderStats(rows) {
+  const a = agg(rows);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-l">Total Receivable</div><div class="stat-v">${fmt(a.total)}</div></div>
+    <div class="stat"><div class="stat-l">Overdue Amount</div><div class="stat-v red">${fmt(a.ov)}</div></div>
+    <div class="stat"><div class="stat-l">Overdue Invoices</div><div class="stat-v red">${a.ovCnt}</div></div>
+    <div class="stat"><div class="stat-l">PSOs</div><div class="stat-v">${new Set(rows.map(r=>r.pso)).size}</div></div>
+    <div class="stat"><div class="stat-l">Customers</div><div class="stat-v">${new Set(rows.map(r=>r.code)).size}</div></div>
+    <div class="stat"><div class="stat-l">Invoices</div><div class="stat-v">${rows.length.toLocaleString()}</div></div>
+  `;
+}
+
+// ── BAND BADGE ────────────────────────────────────────────────
+function bandBadge(b) {
+  const map = {
+    '30':['b30','≤ 30d'], '45':['b45','31–45d'], '60':['b60','46–60d'],
+    '90':['b90','61–90d'], '120':['b120','91–120d'], 'over120':['bover','> 120d'], 'unknown':['b30','—'],
+  };
+  const [c, l] = map[b] || ['b30','?'];
+  return `<span class="bdg ${c}">${l}</span>`;
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderApp() {
+  const rows = getVisible();
+  renderStats(rows);
+  const hier = buildHierarchy(rows);
+  const el   = document.getElementById('results');
+
+  if (!hier.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">No results found</div><div class="empty-s">Try a different search or filter</div></div>`;
+    return;
+  }
+
+  el.innerHTML = hier.map(gRSM => {
+    const rsmRows = Object.values(gRSM.dsms).flatMap(d => Object.values(d.psos).flatMap(p => p.rows));
+    const ra = agg(rsmRows);
+    return `<div class="rsm-block">
+      <div class="rsm-bar">
+        <span class="hier-badge b-rsm">RSM</span>
+        <span class="hier-name">${gRSM.rsm || '—'}</span>
+        <span class="hier-meta">
+          <span>${fmt(ra.total)}</span>
+          ${ra.ov > 0 ? `<span class="rv">⚠ ${fmt(ra.ov)} overdue (${ra.ovCnt})</span>` : '<span class="gv">✓ No overdue</span>'}
+        </span>
+      </div>
+      ${Object.values(gRSM.dsms).sort((a,b)=>a.dsm.localeCompare(b.dsm)).map(gDSM => {
+        const dsmRows = Object.values(gDSM.psos).flatMap(p => p.rows);
+        const da = agg(dsmRows);
+        return `<div class="dsm-block">
+          <div class="dsm-bar">
+            <span class="hier-badge b-dsm">DSM</span>
+            <span class="hier-name">${gDSM.dsm || '—'}</span>
+            <span class="hier-meta">
+              <span>${fmt(da.total)}</span>
+              ${da.ov > 0 ? `<span class="rv">⚠ ${fmt(da.ov)} overdue</span>` : ''}
+            </span>
+          </div>
+          ${Object.values(gDSM.psos).sort((a,b)=>a.pso.localeCompare(b.pso)).map(gPSO => {
+            const pa  = agg(gPSO.rows);
+            const uid = 'u' + Math.random().toString(36).slice(2,8);
+            const sorted = [...gPSO.rows].sort((a,b) => (b.days||0)-(a.days||0));
+            return `<div class="pso-section">
+              <div class="pso-header">
+                <span class="hier-badge b-pso">PSO</span>
+                <strong style="font-size:13px">${gPSO.pso || '—'}</strong>
+                ${gPSO.bcode ? `<span style="font-size:11px;color:var(--text-soft)">BCode: ${gPSO.bcode}</span>` : ''}
+                <span class="hier-meta">
+                  <span>${fmt(pa.total)}</span>
+                  ${pa.ov > 0 ? `<span class="rv">⚠ ${fmt(pa.ov)} (${pa.ovCnt} inv)</span>` : '<span class="gv">✓ Current</span>'}
+                  <button class="collapse-btn" onclick="tog('${uid}',this)">▾ Hide</button>
+                </span>
+              </div>
+              <div id="${uid}">
+                <div class="tbl-wrap"><table>
+                  <thead><tr>
+                    <th>Cust Code</th><th>Customer Name</th><th>Memo No</th><th>Date</th>
+                    <th class="r">Days</th><th>Band</th><th class="r">Limit</th>
+                    <th class="r">≤30d</th><th class="r">31–45d</th><th class="r">46–60d</th>
+                    <th class="r">61–90d</th><th class="r">91–120d</th><th class="r">>120d</th>
+                    <th class="r">Receivable</th><th>Status</th>
+                  </tr></thead>
+                  <tbody>
+                    ${sorted.map(r => `<tr class="${r.isOverdue ? 'ov' : ''}">
+                      <td class="mono">${r.code}</td>
+                      <td class="cname">${r.cname}</td>
+                      <td class="mono">${r.memo}</td>
+                      <td class="mono">${r.invDate ? r.invDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+                      <td class="r" style="font-weight:600;color:${
+                        r.days===null ? 'var(--text-soft)' :
+                        r.days>120   ? '#b91c1c' :
+                        r.days>90    ? '#c2410c' :
+                        r.days>60    ? '#92400e' : 'var(--text-mid)'}">${r.days ?? '—'}</td>
+                      <td>${bandBadge(r.band)}</td>
+                      <td class="r mono" style="color:var(--text-soft)">${r.creditDays}d</td>
+                      <td class="r mono">${r.d30     > 0 ? fmt(r.d30)     : '—'}</td>
+                      <td class="r mono">${r.d31_45  > 0 ? fmt(r.d31_45)  : '—'}</td>
+                      <td class="r mono">${r.d46_60  > 0 ? fmt(r.d46_60)  : '—'}</td>
+                      <td class="r mono">${r.d61_90  > 0 ? fmt(r.d61_90)  : '—'}</td>
+                      <td class="r mono">${r.d91_120 > 0 ? fmt(r.d91_120) : '—'}</td>
+                      <td class="r mono">${r.dAbove  > 0 ? fmt(r.dAbove)  : '—'}</td>
+                      <td class="r" style="font-weight:600">${fmt(r.recv)}</td>
+                      <td>${r.isOverdue ? '<span class="bovr">⚠ Overdue</span>' : '<span class="bdg bok">Current</span>'}</td>
+                    </tr>`).join('')}
+                  </tbody>
+                  <tfoot><tr>
+                    <td colspan="7" style="color:var(--text-soft)">Total — ${gPSO.rows.length} invoices</td>
+                    <td class="r">${fmt(sumF(gPSO.rows, r=>r.d30))}</td>
+                    <td class="r">${fmt(sumF(gPSO.rows, r=>r.d31_45))}</td>
+                    <td class="r">${fmt(sumF(gPSO.rows, r=>r.d46_60))}</td>
+                    <td class="r">${fmt(sumF(gPSO.rows, r=>r.d61_90))}</td>
+                    <td class="r">${fmt(sumF(gPSO.rows, r=>r.d91_120))}</td>
+                    <td class="r">${fmt(sumF(gPSO.rows, r=>r.dAbove))}</td>
+                    <td class="r" style="color:var(--accent)">${fmt(pa.total)}</td>
+                    <td></td>
+                  </tr></tfoot>
+                </table></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ── COLLAPSE ─────────────────────────────────────────────────
+function tog(uid, btn) {
+  const el = document.getElementById(uid);
+  const hidden = el.style.display === 'none';
+  el.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? '▾ Hide' : '▸ Show';
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────
+document.getElementById('srch').addEventListener('input', e => {
+  query = e.target.value.trim();
+  renderApp();
+});
+
+function setView(v) {
+  view = v;
+  document.getElementById('v-all').classList.toggle('on', v === 'all');
+  document.getElementById('v-ov').classList.toggle('on',  v === 'overdue');
+  renderApp();
+}
+
+function setBand(btn, b) {
+  band = b;
+  document.querySelectorAll('[data-band]').forEach(el => el.classList.remove('on'));
+  btn.classList.add('on');
+  renderApp();
+}
+
+function resetApp() {
+  allRows = []; view = 'all'; band = 'all'; query = '';
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('upload-screen').style.display = 'block';
+  document.getElementById('file-in').value   = '';
+  document.getElementById('srch').value      = '';
+  document.getElementById('report-meta').innerHTML = '';
+  document.getElementById('fetch-status').className  = 'status-box';
+  document.getElementById('upload-status').className = 'status-box';
+  document.querySelectorAll('[data-band]').forEach(el => el.classList.remove('on'));
+  document.querySelector('[data-band="all"]').classList.add('on');
+  document.getElementById('v-all').classList.add('on');
+  document.getElementById('v-ov').classList.remove('on');
+  switchTab('view');
+}
+</script>
+</body>
+</html>
