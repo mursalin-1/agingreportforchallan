@@ -891,15 +891,28 @@ function fetchFromSheet() {
       }
 
       setFetchLoader(true, 'Loading aging data…');
-
       return fetch(CONFIG.SCRIPT_URL + '?action=get');
     })
     .then(r => r.json())
-    .then(res => {   // ✅ THIS "res" is ONLY valid here
+    .then(res => {
+
+      console.log("FULL RESPONSE:", res); // 🔥 ADD THIS
 
       setFetchLoader(false);
 
-      allRows = (res.rows || []).map(r => ({
+      // 🔥 FIX: support multiple backend formats
+      const rows =
+        res.rows ||
+        res.data?.rows ||
+        res.result?.rows ||
+        [];
+
+      if (!rows.length) {
+        setFetchStatus("No rows returned from backend", "err");
+        return;
+      }
+
+      allRows = rows.map(r => ({
         ...r,
         recv: Number(r.recv) || 0,
       }));
@@ -923,7 +936,8 @@ function getVisible() {
   let rows = allRows;
   if (query) {
     const q = query.toLowerCase();
-    rows = rows.filter(
+
+    rows = rows.filter(r =>
       String(r.pso || '').toLowerCase().includes(q) ||
       String(r.dsm || '').toLowerCase().includes(q) ||
       String(r.rsm || '').toLowerCase().includes(q) ||
