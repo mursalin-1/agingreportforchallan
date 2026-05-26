@@ -499,12 +499,7 @@ function parseJwt(token) {
 
 function onGoogleSignIn(response) {
   const payload = parseJwt(response.credential);
-
-  console.log("Signed in email:", payload.email);
-  alert("Signed in as: " + payload.email);
-  console.log("Uploader email:", CONFIG.UPLOADER_EMAIL);
   if (!payload) { showLoginError('Invalid sign-in response.'); return; }
-
 
   if (!CONFIG.ALLOWED_VIEWERS.includes(payload.email)) {
     showLoginError(`Access denied for ${payload.email}. Contact your administrator.`);
@@ -711,7 +706,20 @@ function setUploadLoader(on, msg) {
 
 function handleFile(file) {
   if (!file) return;
-  if (!currentUser || currentUser.email !== CONFIG.UPLOADER_EMAIL) {
+  function handleFile(file) {
+  if (!file) return;
+
+  console.log("Uploader check:", {
+    currentUser,
+    email: currentUser?.email,
+    uploader: CONFIG.UPLOADER_EMAIL
+  });
+
+  if (
+    !currentUser ||
+    currentUser.email.trim().toLowerCase() !==
+    CONFIG.UPLOADER_EMAIL.trim().toLowerCase()
+  ) {
     setUploadStatus('You are not authorized to upload reports.', 'err');
     return;
   }
