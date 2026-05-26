@@ -527,7 +527,10 @@ function onGoogleSignIn(response) {
   document.getElementById('upload-screen').style.display = 'block';
 
   // Enable upload tab only for the designated uploader
-  if (currentUser.email === CONFIG.UPLOADER_EMAIL) {
+  if (
+    currentUser.email.trim().toLowerCase() ===
+    CONFIG.UPLOADER_EMAIL.trim().toLowerCase()
+  ) {
     document.getElementById('tab-btn-upload').disabled = false;
   }
 }
