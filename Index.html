@@ -816,6 +816,7 @@ function setFetchLoader(on, msg) {
 function fetchFromSheet() {
   setFetchLoader(true, 'Fetching credit limits…');
   setFetchStatus('', '');
+  console.log("ROWS LOADED:", res.rows?.length);
 
   // Step 1: fetch credit limits first, then fetch aging data
   fetch(CONFIG.SCRIPT_URL + '?action=credits')
@@ -846,23 +847,16 @@ function fetchFromSheet() {
       uploadDate.setHours(0, 0, 0, 0);
 
       // Restore types and re-apply live creditMap
-      allRows = res.rows.map(r => {
-        const invDate    = r.invDate ? new Date(r.invDate) : null;
-        const days       = r.days !== '' && r.days !== null ? parseInt(r.days) : null;
-        const creditDays = creditMap[r.code] || DEFAULT_CREDIT_DAYS;
-        const isOverdue  = days !== null && days > creditDays;
-        return {
-          ...r,
-          invDate, days, creditDays, isOverdue,
-          recv:    parseFloat(r.recv)    || 0,
-          d30:     parseFloat(r.d30)     || 0,
-          d31_45:  parseFloat(r.d31_45)  || 0,
-          d46_60:  parseFloat(r.d46_60)  || 0,
-          d61_90:  parseFloat(r.d61_90)  || 0,
-          d91_120: parseFloat(r.d91_120) || 0,
-          dAbove:  parseFloat(r.dAbove)  || 0,
-        };
-      });
+      allRows = (res.rows || []).map(r => ({
+        ...r,
+        recv: Number(r.recv) || 0,
+        d30: Number(r.d30) || 0,
+        d31_45: Number(r.d31_45) || 0,
+        d46_60: Number(r.d46_60) || 0,
+        d61_90: Number(r.d61_90) || 0,
+        d91_120: Number(r.d91_120) || 0,
+        dAbove: Number(r.dAbove) || 0,
+      }));
 
       document.getElementById('upload-screen').style.display = 'none';
       document.getElementById('app').classList.add('on');
@@ -883,14 +877,18 @@ function fetchFromSheet() {
 
 // ── FILTER ────────────────────────────────────────────────────
 function getVisible() {
+  if (!Array.isArray(allRows)) return [];
   let rows = allRows;
   if (query) {
     const q = query.toLowerCase();
-    rows = rows.filter(r =>
-      r.pso.toLowerCase().includes(q)   || r.dsm.toLowerCase().includes(q)  ||
-      r.rsm.toLowerCase().includes(q)   || r.bcode.toLowerCase().includes(q)||
-      r.code.toLowerCase().includes(q)  || r.cname.toLowerCase().includes(q)||
-      r.memo.toLowerCase().includes(q)
+    rows = rows.filter(
+      String(r.pso || '').toLowerCase().includes(q) ||
+      String(r.dsm || '').toLowerCase().includes(q) ||
+      String(r.rsm || '').toLowerCase().includes(q) ||
+      String(r.bcode || '').toLowerCase().includes(q) ||
+      String(r.code || '').toLowerCase().includes(q) ||
+      String(r.cname || '').toLowerCase().includes(q) ||
+      String(r.memo || '').toLowerCase().includes(q)
     );
   }
   if (band === 'overdue') rows = rows.filter(r => r.isOverdue);
@@ -1048,6 +1046,7 @@ function renderApp() {
       }).join('')}
     </div>`;
   }).join('');
+  console.log("VISIBLE ROWS:", getVisible().length);
 }
 
 // ── COLLAPSE ─────────────────────────────────────────────────
