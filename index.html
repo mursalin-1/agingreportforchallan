@@ -813,16 +813,74 @@ function setFetchLoader(on, msg) {
   if (msg) document.getElementById('fetch-loader-t').textContent = msg;
 }
 
+// function fetchFromSheet() {
+//   setFetchLoader(true, 'Fetching credit limits…');
+//   setFetchStatus('', '');
+
+//   // Step 1: fetch credit limits first, then fetch aging data
+//   fetch(CONFIG.SCRIPT_URL + '?action=credits')
+//     .then(r => r.json())
+//     .then(res => {
+//       // Build creditMap from Google Sheet CREDIT_LIMITS
+//       creditMap = {};
+//       if (res.credits && Array.isArray(res.credits)) {
+//         res.credits.forEach(c => {
+//           const code = cl(String(c.customerCode || ''));
+//           const days = parseInt(c.creditDays) || DEFAULT_CREDIT_DAYS;
+//           if (code) creditMap[code] = days;
+//         });
+//       }
+//       setFetchLoader(true, 'Loading aging data…');
+//       return fetch(CONFIG.SCRIPT_URL + '?action=get');
+//     })
+//     .then(r => r.json())
+//     .then(res => {
+//       setFetchLoader(false);
+
+//       if (!res.rows || res.rows.length === 0) {
+//         setFetchStatus('No data found. Ask your team to upload the aging report first.', 'err');
+//         return;
+//       }
+
+//       uploadDate = new Date(res.uploadDate);
+//       uploadDate.setHours(0, 0, 0, 0);
+
+//       // Restore types and re-apply live creditMap
+//       allRows = (res.rows || []).map(r => ({
+//         ...r,
+//         recv: Number(r.recv) || 0,
+//         d30: Number(r.d30) || 0,
+//         d31_45: Number(r.d31_45) || 0,
+//         d46_60: Number(r.d46_60) || 0,
+//         d61_90: Number(r.d61_90) || 0,
+//         d91_120: Number(r.d91_120) || 0,
+//         dAbove: Number(r.dAbove) || 0,
+//       }));
+
+//       document.getElementById('upload-screen').style.display = 'none';
+//       document.getElementById('app').classList.add('on');
+
+//       const creditCount = Object.keys(creditMap).length;
+//       document.getElementById('report-meta').innerHTML =
+//         `<span>File: <strong>${res.fileName || '—'}</strong></span>` +
+//         `<span>As of: <strong>${uploadDate.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</strong></span>` +
+//         `<span class="meta-ok">✓ ${allRows.length.toLocaleString()} invoices · ${creditCount} credit limits loaded</span>`;
+
+//       renderApp();
+//     })
+//     .catch(err => {
+//       setFetchLoader(false);
+//       setFetchStatus('Could not load data: ' + err.message + ' — check SCRIPT_URL in config.', 'err');
+//     });
+// }
+
 function fetchFromSheet() {
   setFetchLoader(true, 'Fetching credit limits…');
   setFetchStatus('', '');
-  console.log("ROWS LOADED:", res.rows?.length);
 
-  // Step 1: fetch credit limits first, then fetch aging data
   fetch(CONFIG.SCRIPT_URL + '?action=credits')
     .then(r => r.json())
     .then(res => {
-      // Build creditMap from Google Sheet CREDIT_LIMITS
       creditMap = {};
       if (res.credits && Array.isArray(res.credits)) {
         res.credits.forEach(c => {
@@ -831,47 +889,31 @@ function fetchFromSheet() {
           if (code) creditMap[code] = days;
         });
       }
+
       setFetchLoader(true, 'Loading aging data…');
+
       return fetch(CONFIG.SCRIPT_URL + '?action=get');
     })
     .then(r => r.json())
-    .then(res => {
+    .then(res => {   // ✅ THIS "res" is ONLY valid here
+
       setFetchLoader(false);
 
-      if (!res.rows || res.rows.length === 0) {
-        setFetchStatus('No data found. Ask your team to upload the aging report first.', 'err');
-        return;
-      }
-
-      uploadDate = new Date(res.uploadDate);
-      uploadDate.setHours(0, 0, 0, 0);
-
-      // Restore types and re-apply live creditMap
       allRows = (res.rows || []).map(r => ({
         ...r,
         recv: Number(r.recv) || 0,
-        d30: Number(r.d30) || 0,
-        d31_45: Number(r.d31_45) || 0,
-        d46_60: Number(r.d46_60) || 0,
-        d61_90: Number(r.d61_90) || 0,
-        d91_120: Number(r.d91_120) || 0,
-        dAbove: Number(r.dAbove) || 0,
       }));
+
+      uploadDate = new Date(res.uploadDate || Date.now());
 
       document.getElementById('upload-screen').style.display = 'none';
       document.getElementById('app').classList.add('on');
-
-      const creditCount = Object.keys(creditMap).length;
-      document.getElementById('report-meta').innerHTML =
-        `<span>File: <strong>${res.fileName || '—'}</strong></span>` +
-        `<span>As of: <strong>${uploadDate.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</strong></span>` +
-        `<span class="meta-ok">✓ ${allRows.length.toLocaleString()} invoices · ${creditCount} credit limits loaded</span>`;
 
       renderApp();
     })
     .catch(err => {
       setFetchLoader(false);
-      setFetchStatus('Could not load data: ' + err.message + ' — check SCRIPT_URL in config.', 'err');
+      setFetchStatus('Error: ' + err.message, 'err');
     });
 }
 
