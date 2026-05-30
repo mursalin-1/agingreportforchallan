@@ -20,8 +20,6 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
-
-  /* TOPBAR */
   .topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:54px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;box-shadow:var(--shadow);}
   .logo{font-size:15px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:8px;}
   .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;}
@@ -35,8 +33,6 @@
   .user-pill-role{font-size:10px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.05em;}
   .signout-btn{background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:11px;font-family:var(--sans);padding:0;margin-left:6px;transition:color .15s;}
   .signout-btn:hover{color:var(--red);}
-
-  /* LOGIN */
   #login-screen{max-width:400px;margin:80px auto;padding:0 20px;}
   .login-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:40px 32px;box-shadow:var(--shadow-md);}
   .login-logo{width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 18px;}
@@ -52,13 +48,9 @@
   .login-err{margin-top:12px;padding:10px 14px;background:var(--red-lt);color:var(--red);border:1px solid var(--red-bd);border-radius:7px;font-size:13px;text-align:center;display:none;}
   .login-err.on{display:block;}
   .login-note{margin-top:16px;font-size:11px;color:var(--text-soft);background:var(--bg);border-radius:6px;padding:8px 12px;text-align:center;}
-
-  /* PAGE SHELL */
   #upload-screen{max-width:640px;margin:0 auto;padding:40px 20px;display:none;}
   #app{padding:20px 24px;display:none;}
   #app.on{display:block;}
-
-  /* UPLOAD SCREEN */
   .page-title{text-align:center;margin-bottom:28px;}
   .page-title h1{font-size:22px;font-weight:600;margin-bottom:6px;}
   .page-title p{color:var(--text-mid);font-size:14px;line-height:1.6;}
@@ -91,12 +83,16 @@
   .loader-t{font-size:13px;color:var(--text-soft);}
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* TOOLBAR */
+  /* ── CHANGE 2: two search boxes side by side ── */
   .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
-  .search-box{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:0 12px;flex:1;min-width:200px;max-width:380px;box-shadow:var(--shadow);}
+  .search-box{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:0 12px;box-shadow:var(--shadow);}
   .search-box input{background:none;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 0;width:100%;}
   .search-box input::placeholder{color:var(--text-soft);}
+  .search-box.pso-box{flex:0 0 180px;}
+  .search-box.cust-box{flex:1;min-width:180px;max-width:300px;}
+  .search-label{font-size:10px;font-weight:600;color:var(--text-soft);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em;}
   .si{color:var(--text-soft);font-size:15px;}
+
   .tbtn{background:var(--white);border:1px solid var(--border);border-radius:7px;color:var(--text-mid);font-family:var(--sans);font-size:12px;font-weight:500;padding:8px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;box-shadow:var(--shadow);}
   .tbtn:hover{background:var(--bg);border-color:#c5cbda;}
   .tbtn.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:none;}
@@ -106,15 +102,11 @@
   .tbtn-ghost:hover{color:var(--red);border-color:var(--red-bd);}
   .filter-row{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
   .filter-lbl{font-size:11px;font-weight:500;color:var(--text-soft);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
-
-  /* STATS */
   .stats{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
   .stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 16px;flex:1;min-width:120px;box-shadow:var(--shadow);}
   .stat-l{font-size:10px;font-weight:500;color:var(--text-soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
   .stat-v{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--text);}
   .stat-v.red{color:var(--red);}
-
-  /* HIERARCHY */
   .rsm-block{margin-bottom:24px;}
   .rsm-bar{background:#f0f3fa;border:1px solid #d0d7e8;border-radius:10px 10px 0 0;padding:10px 16px;display:flex;align-items:center;gap:10px;}
   .hier-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid;font-family:var(--mono);white-space:nowrap;}
@@ -129,8 +121,6 @@
   .dsm-bar{background:#f8f9fc;border-bottom:1px solid var(--border2);padding:8px 16px;display:flex;align-items:center;gap:10px;}
   .pso-section{border-left:3px solid #e2e6f0;margin-left:20px;}
   .pso-header{background:var(--white);border-bottom:1px solid var(--border2);padding:8px 14px;display:flex;align-items:center;gap:10px;}
-
-  /* TABLE */
   .tbl-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;}
   table{width:100%;border-collapse:collapse;font-size:12px;}
   thead th{background:#f8f9fc;color:var(--text-soft);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
@@ -146,8 +136,6 @@
   td.cname{font-weight:500;max-width:180px;}
   tfoot tr{background:#f0f3fa !important;border-top:2px solid var(--border) !important;}
   tfoot td{font-weight:600;color:var(--text);padding:8px 12px;font-size:11px;}
-
-  /* BADGES */
   .bdg{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;border:1px solid;white-space:nowrap;}
   .b30{background:#f0fdf4;border-color:#bbf7d0;color:#15803d;}
   .b45{background:#fffbeb;border-color:#fde68a;color:#92400e;}
@@ -166,12 +154,12 @@
   ::-webkit-scrollbar{width:5px;height:5px;}
   ::-webkit-scrollbar-track{background:var(--bg);}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-  @media(max-width:640px){.topbar{padding:0 14px;}#app{padding:14px;}.hier-meta{display:none;}}
+  @media(max-width:640px){.topbar{padding:0 14px;}#app{padding:14px;}.hier-meta{display:none;}
+    .search-box.pso-box{flex:1;}.search-box.cust-box{flex:1;}}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="logo"><div class="logo-icon">📊</div>DMS Aging</div>
   <div class="sep"></div>
@@ -180,7 +168,6 @@
   <div id="user-area"></div>
 </div>
 
-<!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">📊</div>
@@ -200,7 +187,6 @@
   </div>
 </div>
 
-<!-- UPLOAD SCREEN -->
 <div id="upload-screen">
   <div class="page-title">
     <h1>Aging Report Viewer</h1>
@@ -209,12 +195,12 @@
   <div class="info-grid">
     <div class="info-card"><div class="info-card-ico">🔴</div><div class="info-card-t">Overdue Highlighted</div><div class="info-card-b">Invoices past each customer's credit limit are marked red.</div></div>
     <div class="info-card"><div class="info-card-ico">📅</div><div class="info-card-t">Aging Recalculated</div><div class="info-card-b">Buckets recalculated from invoice date: 30, 45, 60, 90, 120, 120+ days.</div></div>
-    <div class="info-card"><div class="info-card-ico">🔍</div><div class="info-card-t">Search by PSO / DSM</div><div class="info-card-b">Find any rep, customer, or invoice instantly.</div></div>
+    <div class="info-card"><div class="info-card-ico">🔍</div><div class="info-card-t">Search by PSO / Customer</div><div class="info-card-b">Two separate search boxes for PSO code and customer name.</div></div>
   </div>
   <div class="upload-panel">
     <div class="upload-tabs">
-      <button class="utab active" id="tab-btn-view"   onclick="switchTab('view')">📋 View Latest Report</button>
-      <button class="utab"        id="tab-btn-upload" onclick="switchTab('upload')" id="tab-btn-upload" disabled>⬆ Upload New Report</button>
+      <button class="utab active" id="tab-btn-view" onclick="switchTab('view')">📋 View Latest Report</button>
+      <button class="utab" id="tab-btn-upload" onclick="switchTab('upload')" disabled>⬆ Upload New Report</button>
     </div>
     <div class="tab-pane active" id="tab-view">
       <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px">Click below to load the latest published aging report.</p>
@@ -236,12 +222,18 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
+  <!-- CHANGE 2: Two separate search boxes -->
   <div class="toolbar">
-    <div class="search-box">
+    <div class="search-box pso-box">
+      <span class="search-label">PSO</span>
       <span class="si">⌕</span>
-      <input type="text" id="srch" placeholder="Search PSO / DSM / RSM / Customer / BCode…" autocomplete="off">
+      <input type="text" id="srch-pso" placeholder="PSO code…" autocomplete="off">
+    </div>
+    <div class="search-box cust-box">
+      <span class="search-label">Customer</span>
+      <span class="si">⌕</span>
+      <input type="text" id="srch-cust" placeholder="Customer name or code…" autocomplete="off">
     </div>
     <button class="tbtn on" id="v-all" onclick="setView('all')">All PSOs</button>
     <button class="tbtn"    id="v-ov"  onclick="setView('overdue')">Has Overdue</button>
@@ -265,117 +257,82 @@
 <script>
 // ── CONFIG ────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye-Cr5n2i5YnzTqS81aV_B6mFK6xrRJJ1HEzsbxS_PJq-baKUUNHMCsxKhfVeuToJd/exec';
-// ─────────────────────────────────────────────────────────────
 
 // ── STATE ─────────────────────────────────────────────────────
-let currentUser = null;   // { username, role }
+let currentUser = null;
 let creditMap   = {};
 let allRows     = [];
-let view = 'all', band = 'all', query = '', uploadDate = null;
+let view = 'all', band = 'all', uploadDate = null;
+// CHANGE 2: two separate query strings instead of one
+let queryPSO  = '';
+let queryCust = '';
 const DEFAULT_CREDIT_DAYS = 30;
 
 // ── LOGIN ─────────────────────────────────────────────────────
-// Allow Enter key to submit
 ['login-user','login-pass'].forEach(id => {
-  document.getElementById(id).addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-  });
+  document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 });
 
 function doLogin() {
   const username = document.getElementById('login-user').value.trim();
   const password = document.getElementById('login-pass').value.trim();
-  const btn      = document.getElementById('login-btn');
-  const errEl    = document.getElementById('login-err');
-
-  if (!username || !password) {
-    showLoginErr('Please enter both username and password.');
-    return;
-  }
-
-  btn.disabled     = true;
-  btn.textContent  = 'Signing in…';
-  errEl.classList.remove('on');
-
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-err');
+  if (!username || !password) { showLoginErr('Please enter both username and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…'; errEl.classList.remove('on');
   fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
     .then(r => r.json())
     .then(res => {
-      btn.disabled    = false;
-      btn.textContent = 'Sign In';
-
-      if (!res.role) {
-        showLoginErr(res.message || 'Invalid username or password.');
-        return;
-      }
-
-      // Successful login
+      btn.disabled = false; btn.textContent = 'Sign In';
+      if (!res.role) { showLoginErr(res.message || 'Invalid username or password.'); return; }
       currentUser = { username: res.name || username, role: res.role };
-      document.getElementById('login-screen').style.display    = 'none';
-      document.getElementById('upload-screen').style.display   = 'block';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('upload-screen').style.display = 'block';
       document.getElementById('login-pass').value = '';
-
-      // Show user pill in topbar
       document.getElementById('user-area').innerHTML = `
         <div class="user-pill">
           <span class="user-pill-name">${currentUser.username}</span>
           <span class="user-pill-role">${currentUser.role}</span>
           <button class="signout-btn" onclick="signOut()">Sign out</button>
         </div>`;
-
-      // Enable upload tab only for uploaders
-      if (currentUser.role === 'uploader') {
-        document.getElementById('tab-btn-upload').disabled = false;
-      }
+      if (currentUser.role === 'uploader') document.getElementById('tab-btn-upload').disabled = false;
     })
-    .catch(err => {
-      btn.disabled    = false;
-      btn.textContent = 'Sign In';
-      showLoginErr('Connection error: ' + err.message);
-    });
+    .catch(err => { btn.disabled=false; btn.textContent='Sign In'; showLoginErr('Connection error: '+err.message); });
 }
 
-function showLoginErr(msg) {
-  const el = document.getElementById('login-err');
-  el.textContent = msg;
-  el.classList.add('on');
-}
+function showLoginErr(msg) { const el=document.getElementById('login-err'); el.textContent=msg; el.classList.add('on'); }
 
 function signOut() {
-  currentUser = null; allRows = []; creditMap = {};
-  document.getElementById('user-area').innerHTML    = '';
-  document.getElementById('upload-screen').style.display = 'none';
+  currentUser=null; allRows=[]; creditMap={};
+  document.getElementById('user-area').innerHTML='';
+  document.getElementById('upload-screen').style.display='none';
   document.getElementById('app').classList.remove('on');
-  document.getElementById('login-screen').style.display  = 'block';
-  document.getElementById('login-user').value = '';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('report-meta').innerHTML = '';
+  document.getElementById('login-screen').style.display='block';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('report-meta').innerHTML='';
   document.getElementById('login-err').classList.remove('on');
-  document.getElementById('tab-btn-upload').disabled = true;
+  document.getElementById('tab-btn-upload').disabled=true;
   switchTab('view');
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
 const cl  = s => String(s ?? '').trim();
 const fmt = n => (!n && n!==0)||isNaN(n) ? '—' : Number(n).toLocaleString('en-BD',{minimumFractionDigits:2,maximumFractionDigits:2});
-const sumF = (arr, f) => arr.reduce((t,r) => t+(f(r)||0), 0);
-
-// FIX 1: pad functions — called both on upload AND on fetch from sheet
-function padDSM(code) { const s=cl(code).replace(/\D/g,''); return s ? s.padStart(2,'0') : cl(code); }
-function padPSO(code) { const s=cl(code).replace(/\D/g,''); return s ? s.padStart(3,'0') : cl(code); }
-
-// FIX 2: safe string for hierarchy keys — trim + fallback to '—' so localeCompare never fails
-function safeStr(v) { const s = cl(v); return s || '—'; }
-
-function parseExcelDate(v) {
-  if (!v && v!==0) return null;
-  if (v instanceof Date) return isNaN(v)?null:v;
-  if (typeof v==='number'){const d=new Date(Math.round((v-25569)*86400000));return isNaN(d)?null:d;}
+const sumF = (arr,f) => arr.reduce((t,r)=>t+(f(r)||0),0);
+function padDSM(code){const s=cl(code).replace(/\D/g,'');return s?s.padStart(2,'0'):cl(code);}
+function padPSO(code){const s=cl(code).replace(/\D/g,'');return s?s.padStart(3,'0'):cl(code);}
+function safeStr(v){const s=cl(v);return s||'—';}
+function parseExcelDate(v){
+  if(!v&&v!==0)return null;
+  if(v instanceof Date)return isNaN(v)?null:v;
+  if(typeof v==='number'){const d=new Date(Math.round((v-25569)*86400000));return isNaN(d)?null:d;}
   const str=String(v).trim();
   const m=str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
-  if(m) return new Date(+m[3],+m[2]-1,+m[1]);
+  if(m)return new Date(+m[3],+m[2]-1,+m[1]);
   const m2=str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
-  if(m2) return new Date(+m2[1],+m2[2]-1,+m2[3]);
-  const d=new Date(str); return isNaN(d)?null:d;
+  if(m2)return new Date(+m2[1],+m2[2]-1,+m2[3]);
+  const d=new Date(str);return isNaN(d)?null:d;
 }
 function daysDiff(d){return(!d||!uploadDate)?null:Math.floor((uploadDate-d)/86400000);}
 function ageBand(days){
@@ -384,19 +341,17 @@ function ageBand(days){
   if(days<=90)return'90';if(days<=120)return'120';return'over120';
 }
 function norm(s){return cl(s).toLowerCase().replace(/\s+/g,' ');}
-
 function mapColumns(headers){
   const n=headers.map(norm);
   const find=(...keys)=>n.findIndex(h=>keys.some(k=>h===k||h.includes(k)));
   return{
-    bcode:find('bcode'), rsm:find('rsm'), dsm:find('dsm'), pso:find('pso'),
-    code:find('code'), cname:find('customer name'),
+    bcode:find('bcode'),rsm:find('rsm'),dsm:find('dsm'),pso:find('pso'),
+    code:find('code'),cname:find('customer name'),
     memo:find('memo no','memo','invoice no'),
-    type:find('type'), date:find('date'),
+    type:find('type'),date:find('date'),
     recv:find('receivable',' receivable'),
   };
 }
-
 function parseRows(raw){
   let hRow=0;
   for(let i=0;i<Math.min(25,raw.length);i++){
@@ -411,16 +366,16 @@ function parseRows(raw){
     const typ=C.type>=0?cl(r[C.type]).toUpperCase():'';
     if(C.type>=0&&typ!=='I')continue;
     const bcode=C.bcode>=0?safeStr(r[C.bcode]):'';
-    const rsm  =C.rsm>=0  ?safeStr(r[C.rsm])  :'';
-    const dsm  =padDSM(C.dsm>=0?r[C.dsm]:'');
-    const pso  =padPSO(C.pso>=0?r[C.pso]:'');
-    const code =C.code>=0 ?cl(r[C.code]) :'';
+    const rsm=C.rsm>=0?safeStr(r[C.rsm]):'';
+    const dsm=padDSM(C.dsm>=0?r[C.dsm]:'');
+    const pso=padPSO(C.pso>=0?r[C.pso]:'');
+    const code=C.code>=0?cl(r[C.code]):'';
     const cname=C.cname>=0?cl(r[C.cname]):'';
-    const memo =C.memo>=0 ?cl(r[C.memo]) :'';
-    const recv =C.recv>=0 ?(parseFloat(r[C.recv])||0):0;
+    const memo=C.memo>=0?cl(r[C.memo]):'';
+    const recv=C.recv>=0?(parseFloat(r[C.recv])||0):0;
     const invDate=parseExcelDate(C.date>=0?r[C.date]:null);
     if(!pso&&!code&&!cname)continue;
-    const days=daysDiff(invDate), ab=ageBand(days);
+    const days=daysDiff(invDate),ab=ageBand(days);
     const creditDays=creditMap[code]||DEFAULT_CREDIT_DAYS;
     rows.push({
       bcode,rsm,dsm,pso,code,cname,memo,invDate,days,band:ab,recv,creditDays,
@@ -435,7 +390,6 @@ function parseRows(raw){
   }
   return rows;
 }
-
 function switchTab(t){
   ['view','upload'].forEach(id=>{
     document.getElementById('tab-btn-'+id).classList.toggle('active',id===t);
@@ -449,38 +403,51 @@ document.getElementById('file-in').addEventListener('change',e=>handleFile(e.tar
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFile(e.dataTransfer.files[0]);});
-
 function setUploadStatus(msg,type){const el=document.getElementById('upload-status');el.textContent=msg;el.className='status-box '+type;}
 function setUploadLoader(on,msg){document.getElementById('upload-loader').classList.toggle('on',on);if(msg)document.getElementById('upload-loader-t').textContent=msg;}
 
 function handleFile(file){
   if(!file)return;
   if(!currentUser||currentUser.role!=='uploader'){setUploadStatus('You are not authorized to upload reports.','err');return;}
-  setUploadLoader(true,'Reading file…');setUploadStatus('','');
-  uploadDate=new Date();uploadDate.setHours(0,0,0,0);
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const wb=XLSX.read(ev.target.result,{type:'array',cellDates:false});
-      let sheet=wb.SheetNames[0],maxR=0;
-      wb.SheetNames.forEach(n=>{const ref=wb.Sheets[n]['!ref'];if(!ref)return;const r=XLSX.utils.decode_range(ref).e.r;if(r>maxR){maxR=r;sheet=n;}});
-      const raw=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});
-      const rows=parseRows(raw);
-      if(rows.length===0){setUploadLoader(false);setUploadStatus('No Type I invoices found. Check the file format.','err');return;}
-      setUploadLoader(true,`Parsed ${rows.length.toLocaleString()} invoices — uploading…`);
-      pushToSheet(rows,file.name);
-    }catch(err){setUploadLoader(false);setUploadStatus('Error reading file: '+err.message,'err');}
-  };
-  reader.readAsArrayBuffer(file);
+  // CHANGE 1 FIX: fetch credits first so creditMap is populated before parseRows runs
+  setUploadLoader(true,'Loading credit limits…');setUploadStatus('','');
+  fetch(SCRIPT_URL+'?action=credits')
+    .then(r=>r.json())
+    .then(res=>{
+      // Build creditMap before parsing the file
+      creditMap={};
+      (res.credits||[]).forEach(c=>{
+        const code=cl(String(c.customerCode||''));
+        const days=parseInt(c.creditDays)||DEFAULT_CREDIT_DAYS;
+        if(code) creditMap[code]=days;
+      });
+      console.log('Upload: creditMap loaded '+Object.keys(creditMap).length+' entries');
+      // Now read the file
+      setUploadLoader(true,'Reading file…');
+      uploadDate=new Date();uploadDate.setHours(0,0,0,0);
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        try{
+          const wb=XLSX.read(ev.target.result,{type:'array',cellDates:false});
+          let sheet=wb.SheetNames[0],maxR=0;
+          wb.SheetNames.forEach(n=>{const ref=wb.Sheets[n]['!ref'];if(!ref)return;const r=XLSX.utils.decode_range(ref).e.r;if(r>maxR){maxR=r;sheet=n;}});
+          const raw=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});
+          const rows=parseRows(raw);
+          if(rows.length===0){setUploadLoader(false);setUploadStatus('No Type I invoices found. Check the file format.','err');return;}
+          setUploadLoader(true,`Parsed ${rows.length.toLocaleString()} invoices — uploading…`);
+          pushToSheet(rows,file.name);
+        }catch(err){setUploadLoader(false);setUploadStatus('Error reading file: '+err.message,'err');}
+      };
+      reader.readAsArrayBuffer(file);
+    })
+    .catch(err=>{setUploadLoader(false);setUploadStatus('Could not load credit limits: '+err.message,'err');});
 }
 
 function pushToSheet(rows,fileName){
   const payload={
     action:'upload',
     uploaderUsername:currentUser.username,
-    uploaderPassword:document.getElementById('login-pass').value||'__session__',
-    // We re-send stored credentials. Since session-only, store password in memory:
-    _storedPass: sessionPassword,
+    uploaderPassword:sessionPassword,
     uploadDate:uploadDate.toISOString().split('T')[0],
     fileName,
     rows:rows.map(r=>({
@@ -490,14 +457,11 @@ function pushToSheet(rows,fileName){
       d30:r.d30,d31_45:r.d31_45,d46_60:r.d46_60,d61_90:r.d61_90,d91_120:r.d91_120,dAbove:r.dAbove,
     })),
   };
-  // Use sessionPassword for server re-verification
-  payload.uploaderPassword = sessionPassword;
-
   fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain;charset=utf-8'}})
     .then(r=>r.json())
     .then(res=>{
       setUploadLoader(false);
-      if(res.status==='ok') setUploadStatus(`✓ Published — ${rows.length.toLocaleString()} invoices uploaded. Team can now view the latest report.`,'ok');
+      if(res.status==='ok') setUploadStatus(`✓ Published — ${rows.length.toLocaleString()} invoices uploaded.`,'ok');
       else setUploadStatus('Server error: '+(res.message||'Unknown'),'err');
     })
     .catch(err=>{setUploadLoader(false);setUploadStatus('Upload failed: '+err.message,'err');});
@@ -509,15 +473,24 @@ function setFetchLoader(on,msg){document.getElementById('fetch-loader').classLis
 
 function fetchFromSheet(){
   setFetchLoader(true,'Fetching credit limits…');setFetchStatus('','');
+  // CHANGE 1 FIX: fetch credits first, THEN fetch aging rows
+  // Both use the same pattern — creditMap is guaranteed populated before rows are processed
   fetch(SCRIPT_URL+'?action=credits')
     .then(r=>r.json())
     .then(res=>{
+      // Build creditMap from CREDIT_LIMITS sheet
       creditMap={};
-      (res.credits||[]).forEach(c=>{
+      const list=res.credits||[];
+      list.forEach(c=>{
         const code=cl(String(c.customerCode||''));
         const days=parseInt(c.creditDays)||DEFAULT_CREDIT_DAYS;
         if(code) creditMap[code]=days;
       });
+      console.log('View: creditMap loaded '+list.length+' entries. Sample:',
+        JSON.stringify(Object.entries(creditMap).slice(0,3)));
+      if(list.length===0){
+        console.warn('creditMap is EMPTY — check CREDIT_LIMITS sheet. Open '+SCRIPT_URL+'?action=debug in browser.');
+      }
       setFetchLoader(true,'Loading aging data…');
       return fetch(SCRIPT_URL+'?action=get');
     })
@@ -525,61 +498,70 @@ function fetchFromSheet(){
     .then(res=>{
       setFetchLoader(false);
       if(!res.rows||!res.rows.length){setFetchStatus('No data found. Ask your team to upload the aging report first.','err');return;}
-
-      uploadDate=new Date(res.uploadDate);
-      uploadDate.setHours(0,0,0,0);
-
-      // FIX 3: Re-apply padding and safeStr on ALL fetched rows
-      // FIX 4: Re-apply creditMap to recalculate isOverdue with latest limits
+      uploadDate=new Date(res.uploadDate);uploadDate.setHours(0,0,0,0);
+      // CHANGE 1 FIX: use live creditMap (already populated above) to recalculate every row
       allRows=res.rows.map(r=>{
-        const dsm      = padDSM(r.dsm);           // FIX: re-pad from sheet
-        const pso      = padPSO(r.pso);           // FIX: re-pad from sheet
-        const rsm      = safeStr(r.rsm);          // FIX: trim + fallback
-        const bcode    = safeStr(r.bcode);
-        const code     = cl(String(r.code||''));
-        const invDate  = r.invDate ? parseExcelDate(r.invDate) : null;
-        const days     = r.days!==''&&r.days!==null&&!isNaN(Number(r.days)) ? Number(r.days) : null;
-        const creditDays = creditMap[code] || DEFAULT_CREDIT_DAYS; // FIX: use live creditMap
-        const isOverdue  = days!==null && days>creditDays;
-        const recv     = Number(r.recv)||0;
-
-        // FIX: recalculate aging buckets so they reflect the actual invoice days
-        return {
-          bcode, rsm, dsm, pso, code,
-          cname:   cl(String(r.cname||'')),
-          memo:    cl(String(r.memo||'')),
-          invDate, days,
-          band:    ageBand(days),
-          recv, creditDays, isOverdue,
-          d30:     days!==null&&days<=30?recv:0,
-          d31_45:  days!==null&&days>30&&days<=45?recv:0,
-          d46_60:  days!==null&&days>45&&days<=60?recv:0,
-          d61_90:  days!==null&&days>60&&days<=90?recv:0,
-          d91_120: days!==null&&days>90&&days<=120?recv:0,
-          dAbove:  days!==null&&days>120?recv:0,
+        const dsm=padDSM(r.dsm);
+        const pso=padPSO(r.pso);
+        const rsm=safeStr(r.rsm);
+        const bcode=safeStr(r.bcode);
+        const code=cl(String(r.code||''));
+        const invDate=r.invDate?parseExcelDate(r.invDate):null;
+        const days=(r.days!==''&&r.days!==null&&!isNaN(Number(r.days)))?Number(r.days):null;
+        // KEY FIX: always look up from live creditMap, never use baked-in value from sheet
+        const creditDays=creditMap[code]||DEFAULT_CREDIT_DAYS;
+        const isOverdue=days!==null&&days>creditDays;
+        const recv=Number(r.recv)||0;
+        return{
+          bcode,rsm,dsm,pso,code,
+          cname:cl(String(r.cname||'')),memo:cl(String(r.memo||'')),
+          invDate,days,band:ageBand(days),recv,creditDays,isOverdue,
+          d30:days!==null&&days<=30?recv:0,
+          d31_45:days!==null&&days>30&&days<=45?recv:0,
+          d46_60:days!==null&&days>45&&days<=60?recv:0,
+          d61_90:days!==null&&days>60&&days<=90?recv:0,
+          d91_120:days!==null&&days>90&&days<=120?recv:0,
+          dAbove:days!==null&&days>120?recv:0,
         };
       });
-
       document.getElementById('upload-screen').style.display='none';
       document.getElementById('app').classList.add('on');
+      const creditCount=Object.keys(creditMap).length;
       document.getElementById('report-meta').innerHTML=
         `<span>File: <strong>${res.fileName||'—'}</strong></span>`+
         `<span>As of: <strong>${uploadDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</strong></span>`+
-        `<span class="meta-ok">✓ ${allRows.length.toLocaleString()} invoices · ${Object.keys(creditMap).length} credit limits</span>`;
+        `<span class="meta-ok">✓ ${allRows.length.toLocaleString()} invoices · ${creditCount} credit limits</span>`;
+      if(creditCount===0){
+        // Show visible warning so user knows credits failed
+        document.getElementById('fetch-status').textContent=
+          '⚠ Credit limits not loaded — showing 30d default for all customers. Open '+SCRIPT_URL+'?action=debug to diagnose.';
+        document.getElementById('fetch-status').className='status-box err';
+      }
       renderApp();
     })
     .catch(err=>{setFetchLoader(false);setFetchStatus('Could not load: '+err.message,'err');});
 }
 
 // ── FILTER ────────────────────────────────────────────────────
+// CHANGE 2: filter uses queryPSO and queryCust separately
 function getVisible(){
   let rows=allRows;
-  if(query){
-    const q=query.toLowerCase();
+  if(queryPSO){
+    const q=queryPSO.toLowerCase();
+    // PSO search: matches PSO code, DSM code, RSM name, BCode
     rows=rows.filter(r=>
-      r.pso.toLowerCase().includes(q)||r.dsm.toLowerCase().includes(q)||
-      r.rsm.toLowerCase().includes(q)||r.bcode.toLowerCase().includes(q)||
-      r.code.toLowerCase().includes(q)||r.cname.toLowerCase().includes(q)||
+      r.pso.toLowerCase().includes(q)||
+      r.dsm.toLowerCase().includes(q)||
+      r.rsm.toLowerCase().includes(q)||
+      r.bcode.toLowerCase().includes(q)
+    );
+  }
+  if(queryCust){
+    const q=queryCust.toLowerCase();
+    // Customer search: matches customer name and customer code
+    rows=rows.filter(r=>
+      r.cname.toLowerCase().includes(q)||
+      r.code.toLowerCase().includes(q)||
       r.memo.toLowerCase().includes(q)
     );
   }
@@ -589,21 +571,18 @@ function getVisible(){
   return rows;
 }
 
-// FIX 5: buildHierarchy uses safeStr keys so localeCompare never throws
 function buildHierarchy(rows){
   const map={};
   rows.forEach(r=>{
-    const rk=r.rsm||'—', dk=r.dsm||'—', pk=r.pso||'—';
-    if(!map[rk]) map[rk]={rsm:rk,dsms:{}};
-    if(!map[rk].dsms[dk]) map[rk].dsms[dk]={dsm:dk,psos:{}};
-    if(!map[rk].dsms[dk].psos[pk]) map[rk].dsms[dk].psos[pk]={pso:pk,bcode:r.bcode,rows:[]};
+    const rk=r.rsm||'—',dk=r.dsm||'—',pk=r.pso||'—';
+    if(!map[rk])map[rk]={rsm:rk,dsms:{}};
+    if(!map[rk].dsms[dk])map[rk].dsms[dk]={dsm:dk,psos:{}};
+    if(!map[rk].dsms[dk].psos[pk])map[rk].dsms[dk].psos[pk]={pso:pk,bcode:r.bcode,rows:[]};
     map[rk].dsms[dk].psos[pk].rows.push(r);
   });
   return Object.values(map).sort((a,b)=>a.rsm.localeCompare(b.rsm));
 }
-
 function agg(rows){return{total:sumF(rows,r=>r.recv),ov:sumF(rows.filter(r=>r.isOverdue),r=>r.recv),ovCnt:rows.filter(r=>r.isOverdue).length};}
-
 function renderStats(rows){
   const a=agg(rows);
   document.getElementById('stats').innerHTML=`
@@ -614,19 +593,16 @@ function renderStats(rows){
     <div class="stat"><div class="stat-l">Customers</div><div class="stat-v">${new Set(rows.map(r=>r.code)).size}</div></div>
     <div class="stat"><div class="stat-l">Invoices</div><div class="stat-v">${rows.length.toLocaleString()}</div></div>`;
 }
-
 function bandBadge(b){
   const map={'30':['b30','≤ 30d'],'45':['b45','31–45d'],'60':['b60','46–60d'],'90':['b90','61–90d'],'120':['b120','91–120d'],'over120':['bover','> 120d'],'unknown':['b30','—']};
   const[c,l]=map[b]||['b30','?'];return`<span class="bdg ${c}">${l}</span>`;
 }
-
 function renderApp(){
   const rows=getVisible();
   renderStats(rows);
   const hier=buildHierarchy(rows);
   const el=document.getElementById('results');
   if(!hier.length){el.innerHTML=`<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">No results found</div><div class="empty-s">Try a different search or filter</div></div>`;return;}
-
   el.innerHTML=hier.map(gR=>{
     const rsmRows=Object.values(gR.dsms).flatMap(d=>Object.values(d.psos).flatMap(p=>p.rows));
     const ra=agg(rsmRows);
@@ -718,15 +694,20 @@ function renderApp(){
 }
 
 function tog(uid,btn){const el=document.getElementById(uid);const h=el.style.display==='none';el.style.display=h?'':'none';btn.textContent=h?'▾ Hide':'▸ Show';}
-document.getElementById('srch').addEventListener('input',e=>{query=e.target.value.trim();renderApp();});
+
+// CHANGE 2: two separate input listeners
+document.getElementById('srch-pso').addEventListener('input',e=>{queryPSO=e.target.value.trim();renderApp();});
+document.getElementById('srch-cust').addEventListener('input',e=>{queryCust=e.target.value.trim();renderApp();});
+
 function setView(v){view=v;document.getElementById('v-all').classList.toggle('on',v==='all');document.getElementById('v-ov').classList.toggle('on',v==='overdue');renderApp();}
 function setBand(btn,b){band=b;document.querySelectorAll('[data-band]').forEach(el=>el.classList.remove('on'));btn.classList.add('on');renderApp();}
 function resetApp(){
-  allRows=[];view='all';band='all';query='';
+  allRows=[];view='all';band='all';queryPSO='';queryCust='';
   document.getElementById('app').classList.remove('on');
   document.getElementById('upload-screen').style.display='block';
   document.getElementById('file-in').value='';
-  document.getElementById('srch').value='';
+  document.getElementById('srch-pso').value='';
+  document.getElementById('srch-cust').value='';
   document.getElementById('report-meta').innerHTML='';
   document.getElementById('fetch-status').className='status-box';
   document.getElementById('upload-status').className='status-box';
@@ -737,12 +718,9 @@ function resetApp(){
   switchTab('view');
 }
 
-// Store password in memory for upload re-verification
-let sessionPassword = '';
-const origDoLogin = doLogin;
-// Patch doLogin to capture password before it's cleared
-document.getElementById('login-btn').onclick = function() {
-  sessionPassword = document.getElementById('login-pass').value.trim();
+let sessionPassword='';
+document.getElementById('login-btn').onclick=function(){
+  sessionPassword=document.getElementById('login-pass').value.trim();
   doLogin();
 };
 </script>
