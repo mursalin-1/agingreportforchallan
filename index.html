@@ -375,8 +375,27 @@ function loadSheetCredits() {
 const cl  = s => String(s??'').trim();
 const fmt = n => (!n&&n!==0)||isNaN(n)?'—':Number(n).toLocaleString('en-BD',{minimumFractionDigits:2,maximumFractionDigits:2});
 const sumF = (arr,f) => arr.reduce((t,r)=>t+(f(r)||0),0);
-function padDSM(code){const s=cl(code).replace(/\D/g,'');return s?s.padStart(2,'0'):cl(code);}
-function padPSO(code){const s=cl(code).replace(/\D/g,'');return s?s.padStart(3,'0'):cl(code);}
+function padDSM(code){
+  const s = cl(code);
+
+  // Only pad if it's purely numeric
+  if (/^\d+$/.test(s)) {
+    return s.padStart(2, '0');
+  }
+
+  return s;
+}
+
+function padPSO(code){
+  const s = cl(code);
+
+  // Only pad if it's purely numeric
+  if (/^\d+$/.test(s)) {
+    return s.padStart(3, '0');
+  }
+
+  return s;
+}
 function safeStr(v){const s=cl(v);return s||'—';}
 function parseExcelDate(v){
   if(!v&&v!==0)return null;
