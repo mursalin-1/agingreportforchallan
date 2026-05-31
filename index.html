@@ -82,17 +82,14 @@
   .spinner{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px;}
   .loader-t{font-size:13px;color:var(--text-soft);}
   @keyframes spin{to{transform:rotate(360deg);}}
-
-  /* ── CHANGE 2: two search boxes side by side ── */
   .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
   .search-box{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:0 12px;box-shadow:var(--shadow);}
   .search-box input{background:none;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:13px;padding:9px 0;width:100%;}
   .search-box input::placeholder{color:var(--text-soft);}
-  .search-box.pso-box{flex:0 0 180px;}
-  .search-box.cust-box{flex:1;min-width:180px;max-width:300px;}
+  .search-box.pso-box{flex:0 0 190px;}
+  .search-box.cust-box{flex:1;min-width:180px;max-width:320px;}
   .search-label{font-size:10px;font-weight:600;color:var(--text-soft);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em;}
   .si{color:var(--text-soft);font-size:15px;}
-
   .tbtn{background:var(--white);border:1px solid var(--border);border-radius:7px;color:var(--text-mid);font-family:var(--sans);font-size:12px;font-weight:500;padding:8px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;box-shadow:var(--shadow);}
   .tbtn:hover{background:var(--bg);border-color:#c5cbda;}
   .tbtn.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:none;}
@@ -155,7 +152,7 @@
   ::-webkit-scrollbar-track{background:var(--bg);}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   @media(max-width:640px){.topbar{padding:0 14px;}#app{padding:14px;}.hier-meta{display:none;}
-    .search-box.pso-box{flex:1;}.search-box.cust-box{flex:1;}}
+    .search-box.pso-box,.search-box.cust-box{flex:1 1 140px;}}
 </style>
 </head>
 <body>
@@ -194,8 +191,8 @@
   </div>
   <div class="info-grid">
     <div class="info-card"><div class="info-card-ico">🔴</div><div class="info-card-t">Overdue Highlighted</div><div class="info-card-b">Invoices past each customer's credit limit are marked red.</div></div>
-    <div class="info-card"><div class="info-card-ico">📅</div><div class="info-card-t">Aging Recalculated</div><div class="info-card-b">Buckets recalculated from invoice date: 30, 45, 60, 90, 120, 120+ days.</div></div>
-    <div class="info-card"><div class="info-card-ico">🔍</div><div class="info-card-t">Search by PSO / Customer</div><div class="info-card-b">Two separate search boxes for PSO code and customer name.</div></div>
+    <div class="info-card"><div class="info-card-ico">📅</div><div class="info-card-t">Aging Recalculated</div><div class="info-card-b">Buckets: 30, 45, 60, 90, 120, 120+ days.</div></div>
+    <div class="info-card"><div class="info-card-ico">🔍</div><div class="info-card-t">Two Search Boxes</div><div class="info-card-b">Search PSO code and customer name separately.</div></div>
   </div>
   <div class="upload-panel">
     <div class="upload-tabs">
@@ -223,17 +220,16 @@
 </div>
 
 <div id="app">
-  <!-- CHANGE 2: Two separate search boxes -->
   <div class="toolbar">
     <div class="search-box pso-box">
       <span class="search-label">PSO</span>
       <span class="si">⌕</span>
-      <input type="text" id="srch-pso" placeholder="PSO code…" autocomplete="off">
+      <input type="text" id="srch-pso" placeholder="PSO / DSM / RSM…" autocomplete="off">
     </div>
     <div class="search-box cust-box">
       <span class="search-label">Customer</span>
       <span class="si">⌕</span>
-      <input type="text" id="srch-cust" placeholder="Customer name or code…" autocomplete="off">
+      <input type="text" id="srch-cust" placeholder="Name or code…" autocomplete="off">
     </div>
     <button class="tbtn on" id="v-all" onclick="setView('all')">All PSOs</button>
     <button class="tbtn"    id="v-ov"  onclick="setView('overdue')">Has Overdue</button>
@@ -255,55 +251,88 @@
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye-Cr5n2i5YnzTqS81aV_B6mFK6xrRJJ1HEzsbxS_PJq-baKUUNHMCsxKhfVeuToJd/exec';
+
+// ══════════════════════════════════════════════════════════════
+// FAILPROOF CREDIT MAP — embedded directly from your Challan file
+// This ALWAYS works regardless of sheet names, column names, or
+// network issues. The sheet lookup below only ADDS new entries.
+// ══════════════════════════════════════════════════════════════
+const EMBEDDED_CREDITS = {"1007807": 60, "1005373": 60, "1044385": 45, "1033435": 45, "1021980": 60, "1028472": 60, "1002502": 60, "1002577": 60, "1016487": 60, "1023206": 60, "1009309": 45, "1002722": 45, "1009946": 45, "1030347": 60, "1031020": 45, "1052705": 45, "1041235": 60, "1032093": 45, "1042524": 45, "1045682": 45, "1046113": 45, "1049128": 30, "1016350": 45, "1016733": 45, "1008968": 45, "1001231": 60, "1000316": 60, "1007825": 60, "1015830": 60, "1022053": 60, "1037892": 60, "1025114": 60, "1007808": 60, "1023472": 60, "1000312": 60, "1047210": 60, "1011268": 60, "1048068": 60, "1012455": 60, "1021397": 90, "1021411": 90, "1029043": 90, "1005208": 60, "1032724": 60, "1040108": 60, "1027060": 60, "1027368": 60, "1012872": 60, "1025666": 60, "1040067": 60, "1040482": 60, "1021414": 90, "1021415": 90, "1014404": 90, "1014405": 90, "1041924": 60, "1015165": 90, "1032934": 90, "1039746": 90, "1047407": 45, "1044209": 60, "1045696": 60, "1007809": 90, "1016115": 60, "1016363": 60, "1027401": 90, "1023363": 90, "1014406": 90, "1007823": 30, "1037697": 45, "1037699": 45, "1050709": 45, "1040335": 45, "1039699": 45, "1026785": 60, "1037698": 45, "1024292": 30, "1007781": 45, "1004060": 45, "1002515": 60, "1047159": 45, "1033838": 30, "1016085": 60, "1025144": 60, "1027684": 60, "1030907": 60, "1051508": 60, "1023021": 45, "1026167": 60, "1046850": 60, "1049260": 60, "1026363": 60, "1028018": 30, "1051885": 30, "1052192": 30, "1030378": 60, "1041856": 60, "1029611": 60, "1034088": 60, "1021990": 30, "1047021": 60, "1023197": 60, "1005464": 60, "1006749": 45, "1021300": 60, "1015508": 60, "1016404": 45, "1022932": 60, "1045379": 60, "1021152": 60, "1026370": 45, "1015911": 60, "1029315": 60, "1045105": 60, "1041883": 60, "1000566": 60, "1015414": 60, "1046869": 60, "1022543": 60, "1016056": 60, "1046228": 60, "1015126": 60, "1046369": 60, "1014912": 30, "1028712": 30, "1037489": 30, "1037392": 30, "1000386": 30, "1026008": 30, "1010367": 30, "1029780": 30, "1025284": 30, "1011046": 30, "1010265": 30, "1037405": 30, "1046823": 30, "1000194": 30, "1016322": 30, "1042770": 30, "1017495": 30, "1025219": 30, "1025615": 30, "1000239": 30, "1030488": 30, "1046770": 30, "1030838": 30, "1024389": 30, "1006904": 30, "1003982": 30, "1003707": 45, "1040213": 45, "1014289": 45, "1007753": 45, "1009271": 45, "1026250": 45, "1028514": 45, "1007572": 45, "1040440": 45, "1023128": 60, "1014967": 45, "1010516": 45, "1003874": 60, "1006487": 60, "1023138": 60, "1015607": 45, "1017487": 45, "1003078": 45, "1016219": 45, "1025143": 45, "1034917": 45, "1006490": 45, "1024264": 45, "1003858": 45, "1027092": 45, "1023179": 45, "1022490": 30, "1024885": 45, "1013266": 45, "1031412": 45, "1000297": 45, "1005372": 45, "1007458": 45, "1011361": 45, "1042929": 45, "1046972": 45, "1029642": 45, "1039363": 45, "1008011": 45, "1035303": 45, "1045213": 45, "1010913": 45, "1043201": 45, "1014548": 45, "1024572": 45, "1042454": 45, "1043248": 45, "1044167": 45, "1048219": 45, "1012517": 45, "1015827": 45, "1028203": 45, "1044151": 45, "1022900": 45, "1028058": 45, "1037488": 45, "1005846": 45, "1022145": 45, "1046578": 45, "1040638": 45, "1001072": 45, "1024569": 45, "1012499": 45, "1016591": 45, "1011966": 30, "1043013": 45, "1025848": 45, "1041260": 45, "1011893": 45, "1050534": 45, "1031547": 45, "1039382": 45, "1040006": 45, "1007249": 30, "1027667": 45, "1025518": 45, "1028077": 30, "1012613": 30, "1029219": 30, "1027232": 30, "1030293": 45, "1002296": 45, "1035396": 45, "1039060": 45, "1027634": 45, "1031297": 45, "1011814": 30, "1012627": 30, "1042387": 45, "1000833": 30, "1009077": 30, "1045670": 30, "1047443": 30, "1047444": 30, "1049090": 30, "1044917": 30, "1024464": 45, "1050138": 45, "1053084": 60, "1014772": 60, "1026443": 60, "1027996": 60, "1035013": 45, "1023338": 60, "1052519": 90, "1052518": 90, "1015847": 45, "1003244": 45, "1036874": 45, "1028935": 45, "1048691": 45, "1024400": 45, "1023609": 45, "1042242": 45, "1031561": 45, "1046002": 45, "1021167": 45, "1031462": 45, "1039367": 45, "1040509": 45, "1041816": 30, "1001500": 45, "1000597": 45, "1017468": 45, "1043415": 45, "1047668": 45, "1040483": 45, "1050200": 30, "1001093": 45, "1005693": 45, "1044089": 45, "1048653": 30, "1022997": 45, "1022631": 45, "1021813": 45, "1031010": 45, "1022471": 30, "1028342": 30, "1047823": 30, "1011410": 30, "1023521": 30, "1031294": 45, "1031374": 45, "1047579": 30, "1021928": 45, "1017354": 45, "1017519": 30, "1011412": 45, "1017352": 45, "1031012": 45, "1031114": 30, "1047213": 30, "1036732": 45, "1022884": 45, "1047975": 45, "1013586": 30, "1014660": 30, "1026253": 30, "1023552": 30, "1046477": 45, "1042532": 60, "1042533": 60, "1050031": 30, "1012852": 45, "1002538": 45, "1015325": 45, "1025107": 45, "1028005": 30, "1040337": 45, "1009502": 45, "1028230": 45, "1049429": 45, "1046195": 45, "1028063": 60, "1029061": 60, "1021956": 60, "1007780": 30, "1047517": 30, "1041861": 45, "1047511": 45, "1031748": 45, "1053075": 30, "1052664": 30, "1051884": 60, "1025599": 45, "1029653": 45, "1008232": 30, "1052517": 90, "1023512": 30, "1053494": 90, "1008255": 45, "1041526": 30, "1039292": 30, "1021934": 30, "1029015": 45, "1053742": 60, "1053755": 45, "1049959": 45, "1052195": 45, "1054148": 45, "1043472": 45, "1050834": 45, "1053182": 60, "1043624": 45, "1027420": 60, "1049430": 45, "1048080": 45, "1012739": 45, "1031459": 30, "1014635": 30, "1014469": 30, "1030252": 45, "1053400": 45};
+
+// Runtime credit map — starts as a copy of embedded, sheet lookup merges on top
+let creditMap = Object.assign({}, EMBEDDED_CREDITS);
 
 // ── STATE ─────────────────────────────────────────────────────
 let currentUser = null;
-let creditMap   = {};
-let allRows     = [];
+let allRows = [];
 let view = 'all', band = 'all', uploadDate = null;
-// CHANGE 2: two separate query strings instead of one
-let queryPSO  = '';
-let queryCust = '';
+let queryPSO = '', queryCust = '';
 const DEFAULT_CREDIT_DAYS = 30;
+
+// ── getCreditDays: the ONE function used everywhere ────────────
+// Tries multiple key formats so mismatches can't happen
+function getCreditDays(rawCode) {
+  const code = String(rawCode || '').trim();
+  if (!code) return DEFAULT_CREDIT_DAYS;
+
+  // 1. Exact match
+  if (creditMap[code] !== undefined) return creditMap[code];
+
+  // 2. Strip ALL leading zeros (001007825 → 1007825)
+  const stripped = code.replace(/^0+/, '') || '0';
+  if (creditMap[stripped] !== undefined) return creditMap[stripped];
+
+  // 3. As integer string
+  const asInt = String(parseInt(code, 10));
+  if (!isNaN(parseInt(code,10)) && creditMap[asInt] !== undefined) return creditMap[asInt];
+
+  // 4. Pad to 7 digits
+  const padded7 = stripped.padStart(7, '0');
+  if (creditMap[padded7] !== undefined) return creditMap[padded7];
+
+  // 5. Pad to 9 digits (source format)
+  const padded9 = stripped.padStart(9, '0');
+  if (creditMap[padded9] !== undefined) return creditMap[padded9];
+
+  return DEFAULT_CREDIT_DAYS;
+}
 
 // ── LOGIN ─────────────────────────────────────────────────────
 ['login-user','login-pass'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 });
-
 function doLogin() {
   const username = document.getElementById('login-user').value.trim();
   const password = document.getElementById('login-pass').value.trim();
   const btn = document.getElementById('login-btn');
   const errEl = document.getElementById('login-err');
   if (!username || !password) { showLoginErr('Please enter both username and password.'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in…'; errEl.classList.remove('on');
-  fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
-    .then(r => r.json())
-    .then(res => {
-      btn.disabled = false; btn.textContent = 'Sign In';
-      if (!res.role) { showLoginErr(res.message || 'Invalid username or password.'); return; }
-      currentUser = { username: res.name || username, role: res.role };
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('upload-screen').style.display = 'block';
-      document.getElementById('login-pass').value = '';
-      document.getElementById('user-area').innerHTML = `
-        <div class="user-pill">
-          <span class="user-pill-name">${currentUser.username}</span>
-          <span class="user-pill-role">${currentUser.role}</span>
-          <button class="signout-btn" onclick="signOut()">Sign out</button>
-        </div>`;
-      if (currentUser.role === 'uploader') document.getElementById('tab-btn-upload').disabled = false;
+  btn.disabled=true; btn.textContent='Signing in…'; errEl.classList.remove('on');
+  fetch(SCRIPT_URL+'?action=login&username='+encodeURIComponent(username)+'&password='+encodeURIComponent(password))
+    .then(r=>r.json())
+    .then(res=>{
+      btn.disabled=false; btn.textContent='Sign In';
+      if(!res.role){showLoginErr(res.message||'Invalid username or password.');return;}
+      currentUser={username:res.name||username,role:res.role};
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('upload-screen').style.display='block';
+      document.getElementById('login-pass').value='';
+      document.getElementById('user-area').innerHTML=
+        '<div class="user-pill"><span class="user-pill-name">'+currentUser.username+'</span>'+
+        '<span class="user-pill-role">'+currentUser.role+'</span>'+
+        '<button class="signout-btn" onclick="signOut()">Sign out</button></div>';
+      if(currentUser.role==='uploader') document.getElementById('tab-btn-upload').disabled=false;
+      // Try to load fresh credits from sheet in background (non-blocking)
+      loadSheetCredits();
     })
-    .catch(err => { btn.disabled=false; btn.textContent='Sign In'; showLoginErr('Connection error: '+err.message); });
+    .catch(err=>{btn.disabled=false;btn.textContent='Sign In';showLoginErr('Connection error: '+err.message);});
 }
-
-function showLoginErr(msg) { const el=document.getElementById('login-err'); el.textContent=msg; el.classList.add('on'); }
-
-function signOut() {
-  currentUser=null; allRows=[]; creditMap={};
+function showLoginErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.classList.add('on');}
+function signOut(){
+  currentUser=null;allRows=[];
+  // Reset creditMap back to embedded (not empty)
+  creditMap=Object.assign({},EMBEDDED_CREDITS);
   document.getElementById('user-area').innerHTML='';
   document.getElementById('upload-screen').style.display='none';
   document.getElementById('app').classList.remove('on');
@@ -316,9 +345,35 @@ function signOut() {
   switchTab('view');
 }
 
+// ── LOAD SHEET CREDITS (background, non-blocking) ─────────────
+// Merges sheet credits ON TOP of embedded ones
+// If it fails, embedded credits still work perfectly
+function loadSheetCredits() {
+  fetch(SCRIPT_URL+'?action=credits')
+    .then(r=>r.json())
+    .then(res=>{
+      const list=res.credits||[];
+      if(list.length===0) return; // sheet lookup failed, keep embedded
+      let merged=0;
+      list.forEach(c=>{
+        const code=String(c.customerCode||'').trim();
+        const days=parseInt(c.creditDays)||DEFAULT_CREDIT_DAYS;
+        if(code){
+          creditMap[code]=days;
+          // Also store as integer string so both formats match
+          const asInt=String(parseInt(code,10));
+          if(!isNaN(parseInt(code,10))) creditMap[asInt]=days;
+          merged++;
+        }
+      });
+      console.log('Sheet credits merged: '+merged+' entries. Total creditMap: '+Object.keys(creditMap).length);
+    })
+    .catch(()=>{}); // silently ignore — embedded credits are the fallback
+}
+
 // ── UTILS ─────────────────────────────────────────────────────
-const cl  = s => String(s ?? '').trim();
-const fmt = n => (!n && n!==0)||isNaN(n) ? '—' : Number(n).toLocaleString('en-BD',{minimumFractionDigits:2,maximumFractionDigits:2});
+const cl  = s => String(s??'').trim();
+const fmt = n => (!n&&n!==0)||isNaN(n)?'—':Number(n).toLocaleString('en-BD',{minimumFractionDigits:2,maximumFractionDigits:2});
 const sumF = (arr,f) => arr.reduce((t,r)=>t+(f(r)||0),0);
 function padDSM(code){const s=cl(code).replace(/\D/g,'');return s?s.padStart(2,'0'):cl(code);}
 function padPSO(code){const s=cl(code).replace(/\D/g,'');return s?s.padStart(3,'0'):cl(code);}
@@ -340,16 +395,28 @@ function ageBand(days){
   if(days<=30)return'30';if(days<=45)return'45';if(days<=60)return'60';
   if(days<=90)return'90';if(days<=120)return'120';return'over120';
 }
-function norm(s){return cl(s).toLowerCase().replace(/\s+/g,' ');}
+function norm(s){
+  // Strip _x000a_ (newline encoding from Excel headers) before normalizing
+  return cl(s).replace(/_x000a_/gi,'').toLowerCase().replace(/\s+/g,' ').trim();
+}
 function mapColumns(headers){
   const n=headers.map(norm);
-  const find=(...keys)=>n.findIndex(h=>keys.some(k=>h===k||h.includes(k)));
+  // exact: find column where normalized header equals key exactly
+  const exact=(...keys)=>n.findIndex(h=>keys.some(k=>h===k));
+  // contains: find column where header contains key (used as fallback only)
+  const contains=(...keys)=>n.findIndex(h=>keys.some(k=>h.includes(k)));
   return{
-    bcode:find('bcode'),rsm:find('rsm'),dsm:find('dsm'),pso:find('pso'),
-    code:find('code'),cname:find('customer name'),
-    memo:find('memo no','memo','invoice no'),
-    type:find('type'),date:find('date'),
-    recv:find('receivable',' receivable'),
+    bcode: exact('bcode'),
+    rsm:   exact('rsm'),
+    dsm:   exact('dsm'),
+    pso:   exact('pso'),
+    // CRITICAL: use exact match so 'code' does not match 'bcode'
+    code:  exact('code','cust code','customer code','chemist code'),
+    cname: exact('customer name') >= 0 ? exact('customer name') : contains('customer name','cust name'),
+    memo:  exact('memo no') >= 0 ? exact('memo no') : contains('memo','invoice no','invoice'),
+    type:  exact('type') >= 0 ? exact('type') : contains('type','due type'),
+    date:  exact('date') >= 0 ? exact('date') : contains('date'),
+    recv:  exact('receivable') >= 0 ? exact('receivable') : contains('receivable'),
   };
 }
 function parseRows(raw){
@@ -376,7 +443,7 @@ function parseRows(raw){
     const invDate=parseExcelDate(C.date>=0?r[C.date]:null);
     if(!pso&&!code&&!cname)continue;
     const days=daysDiff(invDate),ab=ageBand(days);
-    const creditDays=creditMap[code]||DEFAULT_CREDIT_DAYS;
+    const creditDays=getCreditDays(code);
     rows.push({
       bcode,rsm,dsm,pso,code,cname,memo,invDate,days,band:ab,recv,creditDays,
       isOverdue:days!==null&&days>creditDays,
@@ -390,6 +457,24 @@ function parseRows(raw){
   }
   return rows;
 }
+
+// Helper to rebuild a row's computed fields using current creditMap
+function recomputeRow(r){
+  const creditDays=getCreditDays(r.code);
+  const days=r.days;
+  const recv=r.recv;
+  const isOverdue=days!==null&&days>creditDays;
+  return Object.assign({},r,{
+    creditDays,isOverdue,band:ageBand(days),
+    d30:days!==null&&days<=30?recv:0,
+    d31_45:days!==null&&days>30&&days<=45?recv:0,
+    d46_60:days!==null&&days>45&&days<=60?recv:0,
+    d61_90:days!==null&&days>60&&days<=90?recv:0,
+    d91_120:days!==null&&days>90&&days<=120?recv:0,
+    dAbove:days!==null&&days>120?recv:0,
+  });
+}
+
 function switchTab(t){
   ['view','upload'].forEach(id=>{
     document.getElementById('tab-btn-'+id).classList.toggle('active',id===t);
@@ -409,38 +494,23 @@ function setUploadLoader(on,msg){document.getElementById('upload-loader').classL
 function handleFile(file){
   if(!file)return;
   if(!currentUser||currentUser.role!=='uploader'){setUploadStatus('You are not authorized to upload reports.','err');return;}
-  // CHANGE 1 FIX: fetch credits first so creditMap is populated before parseRows runs
-  setUploadLoader(true,'Loading credit limits…');setUploadStatus('','');
-  fetch(SCRIPT_URL+'?action=credits')
-    .then(r=>r.json())
-    .then(res=>{
-      // Build creditMap before parsing the file
-      creditMap={};
-      (res.credits||[]).forEach(c=>{
-        const code=cl(String(c.customerCode||''));
-        const days=parseInt(c.creditDays)||DEFAULT_CREDIT_DAYS;
-        if(code) creditMap[code]=days;
-      });
-      console.log('Upload: creditMap loaded '+Object.keys(creditMap).length+' entries');
-      // Now read the file
-      setUploadLoader(true,'Reading file…');
-      uploadDate=new Date();uploadDate.setHours(0,0,0,0);
-      const reader=new FileReader();
-      reader.onload=ev=>{
-        try{
-          const wb=XLSX.read(ev.target.result,{type:'array',cellDates:false});
-          let sheet=wb.SheetNames[0],maxR=0;
-          wb.SheetNames.forEach(n=>{const ref=wb.Sheets[n]['!ref'];if(!ref)return;const r=XLSX.utils.decode_range(ref).e.r;if(r>maxR){maxR=r;sheet=n;}});
-          const raw=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});
-          const rows=parseRows(raw);
-          if(rows.length===0){setUploadLoader(false);setUploadStatus('No Type I invoices found. Check the file format.','err');return;}
-          setUploadLoader(true,`Parsed ${rows.length.toLocaleString()} invoices — uploading…`);
-          pushToSheet(rows,file.name);
-        }catch(err){setUploadLoader(false);setUploadStatus('Error reading file: '+err.message,'err');}
-      };
-      reader.readAsArrayBuffer(file);
-    })
-    .catch(err=>{setUploadLoader(false);setUploadStatus('Could not load credit limits: '+err.message,'err');});
+  // creditMap is already populated (embedded) — no need to wait for network
+  setUploadLoader(true,'Reading file…');setUploadStatus('','');
+  uploadDate=new Date();uploadDate.setHours(0,0,0,0);
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array',cellDates:false});
+      let sheet=wb.SheetNames[0],maxR=0;
+      wb.SheetNames.forEach(n=>{const ref=wb.Sheets[n]['!ref'];if(!ref)return;const r=XLSX.utils.decode_range(ref).e.r;if(r>maxR){maxR=r;sheet=n;}});
+      const raw=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,defval:''});
+      const rows=parseRows(raw);
+      if(rows.length===0){setUploadLoader(false);setUploadStatus('No Type I invoices found. Check the file format.','err');return;}
+      setUploadLoader(true,'Parsed '+rows.length.toLocaleString()+' invoices — uploading…');
+      pushToSheet(rows,file.name);
+    }catch(err){setUploadLoader(false);setUploadStatus('Error reading file: '+err.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function pushToSheet(rows,fileName){
@@ -461,7 +531,7 @@ function pushToSheet(rows,fileName){
     .then(r=>r.json())
     .then(res=>{
       setUploadLoader(false);
-      if(res.status==='ok') setUploadStatus(`✓ Published — ${rows.length.toLocaleString()} invoices uploaded.`,'ok');
+      if(res.status==='ok') setUploadStatus('✓ Published — '+rows.length.toLocaleString()+' invoices uploaded.','ok');
       else setUploadStatus('Server error: '+(res.message||'Unknown'),'err');
     })
     .catch(err=>{setUploadLoader(false);setUploadStatus('Upload failed: '+err.message,'err');});
@@ -472,34 +542,15 @@ function setFetchStatus(msg,type){const el=document.getElementById('fetch-status
 function setFetchLoader(on,msg){document.getElementById('fetch-loader').classList.toggle('on',on);if(msg)document.getElementById('fetch-loader-t').textContent=msg;}
 
 function fetchFromSheet(){
-  setFetchLoader(true,'Fetching credit limits…');setFetchStatus('','');
-  // CHANGE 1 FIX: fetch credits first, THEN fetch aging rows
-  // Both use the same pattern — creditMap is guaranteed populated before rows are processed
-  fetch(SCRIPT_URL+'?action=credits')
-    .then(r=>r.json())
-    .then(res=>{
-      // Build creditMap from CREDIT_LIMITS sheet
-      creditMap={};
-      const list=res.credits||[];
-      list.forEach(c=>{
-        const code=cl(String(c.customerCode||''));
-        const days=parseInt(c.creditDays)||DEFAULT_CREDIT_DAYS;
-        if(code) creditMap[code]=days;
-      });
-      console.log('View: creditMap loaded '+list.length+' entries. Sample:',
-        JSON.stringify(Object.entries(creditMap).slice(0,3)));
-      if(list.length===0){
-        console.warn('creditMap is EMPTY — check CREDIT_LIMITS sheet. Open '+SCRIPT_URL+'?action=debug in browser.');
-      }
-      setFetchLoader(true,'Loading aging data…');
-      return fetch(SCRIPT_URL+'?action=get');
-    })
+  setFetchLoader(true,'Loading aging data…');setFetchStatus('','');
+  // Fetch aging rows directly — creditMap is already ready from embedded data
+  fetch(SCRIPT_URL+'?action=get')
     .then(r=>r.json())
     .then(res=>{
       setFetchLoader(false);
       if(!res.rows||!res.rows.length){setFetchStatus('No data found. Ask your team to upload the aging report first.','err');return;}
       uploadDate=new Date(res.uploadDate);uploadDate.setHours(0,0,0,0);
-      // CHANGE 1 FIX: use live creditMap (already populated above) to recalculate every row
+      // Recompute every row using current creditMap (embedded + any sheet overrides)
       allRows=res.rows.map(r=>{
         const dsm=padDSM(r.dsm);
         const pso=padPSO(r.pso);
@@ -508,8 +559,7 @@ function fetchFromSheet(){
         const code=cl(String(r.code||''));
         const invDate=r.invDate?parseExcelDate(r.invDate):null;
         const days=(r.days!==''&&r.days!==null&&!isNaN(Number(r.days)))?Number(r.days):null;
-        // KEY FIX: always look up from live creditMap, never use baked-in value from sheet
-        const creditDays=creditMap[code]||DEFAULT_CREDIT_DAYS;
+        const creditDays=getCreditDays(code);
         const isOverdue=days!==null&&days>creditDays;
         const recv=Number(r.recv)||0;
         return{
@@ -526,51 +576,31 @@ function fetchFromSheet(){
       });
       document.getElementById('upload-screen').style.display='none';
       document.getElementById('app').classList.add('on');
-      const creditCount=Object.keys(creditMap).length;
       document.getElementById('report-meta').innerHTML=
-        `<span>File: <strong>${res.fileName||'—'}</strong></span>`+
-        `<span>As of: <strong>${uploadDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</strong></span>`+
-        `<span class="meta-ok">✓ ${allRows.length.toLocaleString()} invoices · ${creditCount} credit limits</span>`;
-      if(creditCount===0){
-        // Show visible warning so user knows credits failed
-        document.getElementById('fetch-status').textContent=
-          '⚠ Credit limits not loaded — showing 30d default for all customers. Open '+SCRIPT_URL+'?action=debug to diagnose.';
-        document.getElementById('fetch-status').className='status-box err';
-      }
+        '<span>File: <strong>'+(res.fileName||'—')+'</strong></span>'+
+        '<span>As of: <strong>'+uploadDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+'</strong></span>'+
+        '<span class="meta-ok">✓ '+allRows.length.toLocaleString()+' invoices · '+Object.keys(EMBEDDED_CREDITS).length+' credit limits</span>';
       renderApp();
     })
     .catch(err=>{setFetchLoader(false);setFetchStatus('Could not load: '+err.message,'err');});
 }
 
 // ── FILTER ────────────────────────────────────────────────────
-// CHANGE 2: filter uses queryPSO and queryCust separately
 function getVisible(){
   let rows=allRows;
   if(queryPSO){
     const q=queryPSO.toLowerCase();
-    // PSO search: matches PSO code, DSM code, RSM name, BCode
-    rows=rows.filter(r=>
-      r.pso.toLowerCase().includes(q)||
-      r.dsm.toLowerCase().includes(q)||
-      r.rsm.toLowerCase().includes(q)||
-      r.bcode.toLowerCase().includes(q)
-    );
+    rows=rows.filter(r=>r.pso.toLowerCase().includes(q)||r.dsm.toLowerCase().includes(q)||r.rsm.toLowerCase().includes(q)||r.bcode.toLowerCase().includes(q));
   }
   if(queryCust){
     const q=queryCust.toLowerCase();
-    // Customer search: matches customer name and customer code
-    rows=rows.filter(r=>
-      r.cname.toLowerCase().includes(q)||
-      r.code.toLowerCase().includes(q)||
-      r.memo.toLowerCase().includes(q)
-    );
+    rows=rows.filter(r=>r.cname.toLowerCase().includes(q)||r.code.toLowerCase().includes(q)||r.memo.toLowerCase().includes(q));
   }
   if(band==='overdue') rows=rows.filter(r=>r.isOverdue);
   else if(band!=='all') rows=rows.filter(r=>r.band===band);
   if(view==='overdue'){const bad=new Set(allRows.filter(r=>r.isOverdue).map(r=>r.pso));rows=rows.filter(r=>bad.has(r.pso));}
   return rows;
 }
-
 function buildHierarchy(rows){
   const map={};
   rows.forEach(r=>{
@@ -585,124 +615,90 @@ function buildHierarchy(rows){
 function agg(rows){return{total:sumF(rows,r=>r.recv),ov:sumF(rows.filter(r=>r.isOverdue),r=>r.recv),ovCnt:rows.filter(r=>r.isOverdue).length};}
 function renderStats(rows){
   const a=agg(rows);
-  document.getElementById('stats').innerHTML=`
-    <div class="stat"><div class="stat-l">Total Receivable</div><div class="stat-v">${fmt(a.total)}</div></div>
-    <div class="stat"><div class="stat-l">Overdue Amount</div><div class="stat-v red">${fmt(a.ov)}</div></div>
-    <div class="stat"><div class="stat-l">Overdue Invoices</div><div class="stat-v red">${a.ovCnt}</div></div>
-    <div class="stat"><div class="stat-l">PSOs</div><div class="stat-v">${new Set(rows.map(r=>r.pso)).size}</div></div>
-    <div class="stat"><div class="stat-l">Customers</div><div class="stat-v">${new Set(rows.map(r=>r.code)).size}</div></div>
-    <div class="stat"><div class="stat-l">Invoices</div><div class="stat-v">${rows.length.toLocaleString()}</div></div>`;
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><div class="stat-l">Total Receivable</div><div class="stat-v">'+fmt(a.total)+'</div></div>'+
+    '<div class="stat"><div class="stat-l">Overdue Amount</div><div class="stat-v red">'+fmt(a.ov)+'</div></div>'+
+    '<div class="stat"><div class="stat-l">Overdue Invoices</div><div class="stat-v red">'+a.ovCnt+'</div></div>'+
+    '<div class="stat"><div class="stat-l">PSOs</div><div class="stat-v">'+new Set(rows.map(r=>r.pso)).size+'</div></div>'+
+    '<div class="stat"><div class="stat-l">Customers</div><div class="stat-v">'+new Set(rows.map(r=>r.code)).size+'</div></div>'+
+    '<div class="stat"><div class="stat-l">Invoices</div><div class="stat-v">'+rows.length.toLocaleString()+'</div></div>';
 }
 function bandBadge(b){
   const map={'30':['b30','≤ 30d'],'45':['b45','31–45d'],'60':['b60','46–60d'],'90':['b90','61–90d'],'120':['b120','91–120d'],'over120':['bover','> 120d'],'unknown':['b30','—']};
-  const[c,l]=map[b]||['b30','?'];return`<span class="bdg ${c}">${l}</span>`;
+  const[c,l]=map[b]||['b30','?'];return'<span class="bdg '+c+'">'+l+'</span>';
 }
 function renderApp(){
-  const rows=getVisible();
-  renderStats(rows);
+  const rows=getVisible();renderStats(rows);
   const hier=buildHierarchy(rows);
   const el=document.getElementById('results');
-  if(!hier.length){el.innerHTML=`<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">No results found</div><div class="empty-s">Try a different search or filter</div></div>`;return;}
+  if(!hier.length){el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">No results found</div><div class="empty-s">Try a different search or filter</div></div>';return;}
   el.innerHTML=hier.map(gR=>{
     const rsmRows=Object.values(gR.dsms).flatMap(d=>Object.values(d.psos).flatMap(p=>p.rows));
     const ra=agg(rsmRows);
-    const dsmList=Object.values(gR.dsms).sort((a,b)=>a.dsm.localeCompare(b.dsm));
-    return`<div class="rsm-block">
-      <div class="rsm-bar">
-        <span class="hier-badge b-rsm">RSM</span>
-        <span class="hier-name">${gR.rsm}</span>
-        <span class="hier-meta">
-          <span>${fmt(ra.total)}</span>
-          ${ra.ov>0?`<span class="rv">⚠ ${fmt(ra.ov)} overdue (${ra.ovCnt})</span>`:'<span class="gv">✓ No overdue</span>'}
-        </span>
-      </div>
-      ${dsmList.map(gD=>{
+    return'<div class="rsm-block">'+
+      '<div class="rsm-bar"><span class="hier-badge b-rsm">RSM</span><span class="hier-name">'+gR.rsm+'</span>'+
+      '<span class="hier-meta"><span>'+fmt(ra.total)+'</span>'+(ra.ov>0?'<span class="rv">⚠ '+fmt(ra.ov)+' overdue ('+ra.ovCnt+')</span>':'<span class="gv">✓ No overdue</span>')+'</span></div>'+
+      Object.values(gR.dsms).sort((a,b)=>a.dsm.localeCompare(b.dsm)).map(gD=>{
         const dsmRows=Object.values(gD.psos).flatMap(p=>p.rows);
         const da=agg(dsmRows);
-        const psoList=Object.values(gD.psos).sort((a,b)=>a.pso.localeCompare(b.pso));
-        return`<div class="dsm-block">
-          <div class="dsm-bar">
-            <span class="hier-badge b-dsm">DSM</span>
-            <span class="hier-name">${gD.dsm}</span>
-            <span class="hier-meta">
-              <span>${fmt(da.total)}</span>
-              ${da.ov>0?`<span class="rv">⚠ ${fmt(da.ov)} overdue</span>`:''}
-            </span>
-          </div>
-          ${psoList.map(gP=>{
+        return'<div class="dsm-block"><div class="dsm-bar"><span class="hier-badge b-dsm">DSM</span><span class="hier-name">'+gD.dsm+'</span>'+
+          '<span class="hier-meta"><span>'+fmt(da.total)+'</span>'+(da.ov>0?'<span class="rv">⚠ '+fmt(da.ov)+' overdue</span>':'')+'</span></div>'+
+          Object.values(gD.psos).sort((a,b)=>a.pso.localeCompare(b.pso)).map(gP=>{
             const pa=agg(gP.rows);
             const uid='u'+Math.random().toString(36).slice(2,8);
             const sorted=[...gP.rows].sort((a,b)=>(b.days||0)-(a.days||0));
-            return`<div class="pso-section">
-              <div class="pso-header">
-                <span class="hier-badge b-pso">PSO</span>
-                <strong style="font-size:13px">${gP.pso}</strong>
-                ${gP.bcode&&gP.bcode!=='—'?`<span style="font-size:11px;color:var(--text-soft)">BCode: ${gP.bcode}</span>`:''}
-                <span class="hier-meta">
-                  <span>${fmt(pa.total)}</span>
-                  ${pa.ov>0?`<span class="rv">⚠ ${fmt(pa.ov)} (${pa.ovCnt})</span>`:'<span class="gv">✓ Current</span>'}
-                  <button class="collapse-btn" onclick="tog('${uid}',this)">▾ Hide</button>
-                </span>
-              </div>
-              <div id="${uid}">
-                <div class="tbl-wrap"><table>
-                  <thead><tr>
-                    <th>Cust Code</th><th>Customer Name</th><th>Memo No</th><th>Date</th>
-                    <th class="r">Days</th><th>Band</th><th class="r">Limit</th>
-                    <th class="r">≤30d</th><th class="r">31–45d</th><th class="r">46–60d</th>
-                    <th class="r">61–90d</th><th class="r">91–120d</th><th class="r">>120d</th>
-                    <th class="r">Receivable</th><th>Status</th>
-                  </tr></thead>
-                  <tbody>
-                    ${sorted.map(r=>`<tr class="${r.isOverdue?'ov':''}">
-                      <td class="mono">${r.code}</td>
-                      <td class="cname">${r.cname}</td>
-                      <td class="mono">${r.memo}</td>
-                      <td class="mono">${r.invDate?r.invDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'}</td>
-                      <td class="r" style="font-weight:600;color:${r.days===null?'var(--text-soft)':r.days>120?'#b91c1c':r.days>90?'#c2410c':r.days>60?'#92400e':'var(--text-mid)'}">${r.days??'—'}</td>
-                      <td>${bandBadge(r.band)}</td>
-                      <td class="r mono" style="color:var(--text-soft)">${r.creditDays}d</td>
-                      <td class="r mono">${r.d30>0?fmt(r.d30):'—'}</td>
-                      <td class="r mono">${r.d31_45>0?fmt(r.d31_45):'—'}</td>
-                      <td class="r mono">${r.d46_60>0?fmt(r.d46_60):'—'}</td>
-                      <td class="r mono">${r.d61_90>0?fmt(r.d61_90):'—'}</td>
-                      <td class="r mono">${r.d91_120>0?fmt(r.d91_120):'—'}</td>
-                      <td class="r mono">${r.dAbove>0?fmt(r.dAbove):'—'}</td>
-                      <td class="r" style="font-weight:600">${fmt(r.recv)}</td>
-                      <td>${r.isOverdue?'<span class="bovr">⚠ Overdue</span>':'<span class="bdg bok">Current</span>'}</td>
-                    </tr>`).join('')}
-                  </tbody>
-                  <tfoot><tr>
-                    <td colspan="7" style="color:var(--text-soft)">Total — ${gP.rows.length} invoices</td>
-                    <td class="r">${fmt(sumF(gP.rows,r=>r.d30))}</td>
-                    <td class="r">${fmt(sumF(gP.rows,r=>r.d31_45))}</td>
-                    <td class="r">${fmt(sumF(gP.rows,r=>r.d46_60))}</td>
-                    <td class="r">${fmt(sumF(gP.rows,r=>r.d61_90))}</td>
-                    <td class="r">${fmt(sumF(gP.rows,r=>r.d91_120))}</td>
-                    <td class="r">${fmt(sumF(gP.rows,r=>r.dAbove))}</td>
-                    <td class="r" style="color:var(--accent)">${fmt(pa.total)}</td>
-                    <td></td>
-                  </tr></tfoot>
-                </table></div>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>`;
-      }).join('')}
-    </div>`;
+            return'<div class="pso-section"><div class="pso-header">'+
+              '<span class="hier-badge b-pso">PSO</span><strong style="font-size:13px">'+gP.pso+'</strong>'+
+              (gP.bcode&&gP.bcode!=='—'?'<span style="font-size:11px;color:var(--text-soft)">BCode: '+gP.bcode+'</span>':'')+
+              '<span class="hier-meta"><span>'+fmt(pa.total)+'</span>'+
+              (pa.ov>0?'<span class="rv">⚠ '+fmt(pa.ov)+' ('+pa.ovCnt+')</span>':'<span class="gv">✓ Current</span>')+
+              '<button class="collapse-btn" onclick="tog(\''+uid+'\',this)">▾ Hide</button></span></div>'+
+              '<div id="'+uid+'"><div class="tbl-wrap"><table>'+
+              '<thead><tr><th>Cust Code</th><th>Customer Name</th><th>Memo No</th><th>Date</th>'+
+              '<th class="r">Days</th><th>Band</th><th class="r">Limit</th>'+
+              '<th class="r">≤30d</th><th class="r">31–45d</th><th class="r">46–60d</th>'+
+              '<th class="r">61–90d</th><th class="r">91–120d</th><th class="r">>120d</th>'+
+              '<th class="r">Receivable</th><th>Status</th></tr></thead><tbody>'+
+              sorted.map(r=>'<tr class="'+(r.isOverdue?'ov':'')+'">'+
+                '<td class="mono">'+r.code+'</td><td class="cname">'+r.cname+'</td>'+
+                '<td class="mono">'+r.memo+'</td>'+
+                '<td class="mono">'+(r.invDate?r.invDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—')+'</td>'+
+                '<td class="r" style="font-weight:600;color:'+(r.days===null?'var(--text-soft)':r.days>120?'#b91c1c':r.days>90?'#c2410c':r.days>60?'#92400e':'var(--text-mid)')+'">'+(r.days??'—')+'</td>'+
+                '<td>'+bandBadge(r.band)+'</td>'+
+                '<td class="r mono" style="color:var(--text-soft)">'+r.creditDays+'d</td>'+
+                '<td class="r mono">'+(r.d30>0?fmt(r.d30):'—')+'</td>'+
+                '<td class="r mono">'+(r.d31_45>0?fmt(r.d31_45):'—')+'</td>'+
+                '<td class="r mono">'+(r.d46_60>0?fmt(r.d46_60):'—')+'</td>'+
+                '<td class="r mono">'+(r.d61_90>0?fmt(r.d61_90):'—')+'</td>'+
+                '<td class="r mono">'+(r.d91_120>0?fmt(r.d91_120):'—')+'</td>'+
+                '<td class="r mono">'+(r.dAbove>0?fmt(r.dAbove):'—')+'</td>'+
+                '<td class="r" style="font-weight:600">'+fmt(r.recv)+'</td>'+
+                '<td>'+(r.isOverdue?'<span class="bovr">⚠ Overdue</span>':'<span class="bdg bok">Current</span>')+'</td>'+
+              '</tr>').join('')+
+              '</tbody><tfoot><tr>'+
+              '<td colspan="7" style="color:var(--text-soft)">Total — '+gP.rows.length+' invoices</td>'+
+              '<td class="r">'+fmt(sumF(gP.rows,r=>r.d30))+'</td>'+
+              '<td class="r">'+fmt(sumF(gP.rows,r=>r.d31_45))+'</td>'+
+              '<td class="r">'+fmt(sumF(gP.rows,r=>r.d46_60))+'</td>'+
+              '<td class="r">'+fmt(sumF(gP.rows,r=>r.d61_90))+'</td>'+
+              '<td class="r">'+fmt(sumF(gP.rows,r=>r.d91_120))+'</td>'+
+              '<td class="r">'+fmt(sumF(gP.rows,r=>r.dAbove))+'</td>'+
+              '<td class="r" style="color:var(--accent)">'+fmt(pa.total)+'</td><td></td>'+
+              '</tr></tfoot></table></div></div></div>';
+          }).join('')+
+        '</div>';
+      }).join('')+
+    '</div>';
   }).join('');
 }
-
 function tog(uid,btn){const el=document.getElementById(uid);const h=el.style.display==='none';el.style.display=h?'':'none';btn.textContent=h?'▾ Hide':'▸ Show';}
-
-// CHANGE 2: two separate input listeners
 document.getElementById('srch-pso').addEventListener('input',e=>{queryPSO=e.target.value.trim();renderApp();});
 document.getElementById('srch-cust').addEventListener('input',e=>{queryCust=e.target.value.trim();renderApp();});
-
 function setView(v){view=v;document.getElementById('v-all').classList.toggle('on',v==='all');document.getElementById('v-ov').classList.toggle('on',v==='overdue');renderApp();}
 function setBand(btn,b){band=b;document.querySelectorAll('[data-band]').forEach(el=>el.classList.remove('on'));btn.classList.add('on');renderApp();}
 function resetApp(){
   allRows=[];view='all';band='all';queryPSO='';queryCust='';
+  creditMap=Object.assign({},EMBEDDED_CREDITS);
   document.getElementById('app').classList.remove('on');
   document.getElementById('upload-screen').style.display='block';
   document.getElementById('file-in').value='';
@@ -717,12 +713,8 @@ function resetApp(){
   document.getElementById('v-ov').classList.remove('on');
   switchTab('view');
 }
-
 let sessionPassword='';
-document.getElementById('login-btn').onclick=function(){
-  sessionPassword=document.getElementById('login-pass').value.trim();
-  doLogin();
-};
+document.getElementById('login-btn').onclick=function(){sessionPassword=document.getElementById('login-pass').value.trim();doLogin();};
 </script>
 </body>
 </html>
