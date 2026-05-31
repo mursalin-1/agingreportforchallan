@@ -224,7 +224,7 @@
     <div class="search-box pso-box">
       <span class="search-label">PSO</span>
       <span class="si">⌕</span>
-      <input type="text" id="srch-pso" placeholder="PSO / DSM / RSM…" autocomplete="off">
+      <input type="text" id="srch-pso" placeholder="PSO …" autocomplete="off">
     </div>
     <div class="search-box cust-box">
       <span class="search-label">Customer</span>
@@ -609,7 +609,7 @@ function getVisible(){
   let rows=allRows;
   if(queryPSO){
     const q=queryPSO.toLowerCase();
-    rows=rows.filter(r=>r.pso.toLowerCase().includes(q)||r.dsm.toLowerCase().includes(q)||r.rsm.toLowerCase().includes(q)||r.bcode.toLowerCase().includes(q));
+    rows=rows.filter(r=>r.pso.toLowerCase().includes(q));
   }
   if(queryCust){
     const q=queryCust.toLowerCase();
