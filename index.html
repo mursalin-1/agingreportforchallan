@@ -711,8 +711,15 @@ function renderApp(){
   }).join('');
 }
 function tog(uid,btn){const el=document.getElementById(uid);const h=el.style.display==='none';el.style.display=h?'':'none';btn.textContent=h?'▾ Hide':'▸ Show';}
-document.getElementById('srch-pso').addEventListener('input',e=>{queryPSO=e.target.value.trim();renderApp();});
-document.getElementById('srch-cust').addEventListener('input',e=>{queryCust=e.target.value.trim();renderApp();});
+document.getElementById('srch-pso').addEventListener('input',e=>{
+  queryPSO=e.target.value.trim();
+  renderApp();
+});
+
+document.getElementById('srch-cust').addEventListener('input',e=>{
+  queryCust=e.target.value.trim();
+  renderApp();
+});
 function setView(v){view=v;document.getElementById('v-all').classList.toggle('on',v==='all');document.getElementById('v-ov').classList.toggle('on',v==='overdue');renderApp();}
 function setBand(btn,b){band=b;document.querySelectorAll('[data-band]').forEach(el=>el.classList.remove('on'));btn.classList.add('on');renderApp();}
 function resetApp(){
