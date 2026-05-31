@@ -609,7 +609,7 @@ function getVisible(){
   let rows=allRows;
   if(queryPSO){
     const q=queryPSO.toLowerCase();
-    rows=rows.filter(r=>r.pso.toLowerCase().includes(q);
+    rows=rows.filter(r=>r.pso.toLowerCase().includes(q)||r.dsm.toLowerCase().includes(q)||r.rsm.toLowerCase().includes(q)||r.bcode.toLowerCase().includes(q));
   }
   if(queryCust){
     const q=queryCust.toLowerCase();
